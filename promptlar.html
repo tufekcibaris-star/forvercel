@@ -20,10 +20,10 @@ body {
 
 .card {
   position: relative;
-  width: 260px;
-  height: 260px;
+  width: 260px; /* GENİŞLİK SABİT */
+  height: 260px; /* YÜKSEKLİK SABİT */
   perspective: 1000px;
-  cursor: pointer; /* Kartın tıklanabilir olduğunu belirtir */
+  cursor: pointer;
 }
 
 /* Kartın dönmesini sağlayan ana kapsayıcı */
@@ -38,7 +38,7 @@ body {
 
 /* Hover/Aktif Durumda Dönme */
 .card:hover .card-inner,
-.card.flipped .card-inner { /* 'flipped' class'ı JavaScript ile eklenir */
+.card.flipped .card-inner {
   transform: rotateY(180deg);
 }
 
@@ -47,7 +47,7 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Kartın arka yüzünün ön yüzdeyken görünmemesi */
   border-radius: 16px;
 }
 
@@ -67,7 +67,7 @@ body {
 .prompt-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5); /* Hafif karartma */
+  background: rgba(0, 0, 0, 0.4); /* Yarı saydam arka plan */
   color: white;
   display: flex;
   justify-content: center;
@@ -75,22 +75,11 @@ body {
   border-radius: 16px;
   font-size: 16px;
   font-weight: bold;
-  opacity: 0; /* Başlangıçta gizli */
+  opacity: 1; /* Metin her zaman görünür */
   transition: opacity 0.3s;
+  padding: 10px;
+  text-align: center;
 }
-
-/* Hover/Aktif Durumda Overlay Görünürlüğü */
-.card:hover .prompt-overlay,
-.card.flipped .prompt-overlay {
-  opacity: 1; /* Dönüş sırasında görünür hale gelir */
-}
-/* Ek: Sadece metnin görünür olmasını isterseniz, bu opacity'i 1 yapabilirsiniz. */
-.prompt-overlay {
-    /* ... diğer stiller ... */
-    opacity: 1; /* Metin her zaman görünür */
-    background: rgba(0, 0, 0, 0.4); /* Arka planı biraz daha şeffaf yapabiliriz */
-}
-/* Eğer metin sadece hover/click ile görünsün derseniz, opacity: 0 ve sonraki kuralı kullanın. */
 
 
 /* Prompt (Arka Yüz) Stili */
@@ -103,7 +92,7 @@ body {
   align-items: center;
   padding: 15px;
   font-size: 14px;
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Arka yüzü başlangıçta döndürülmüş halde gizler */
   backdrop-filter: blur(4px);
 }
 
