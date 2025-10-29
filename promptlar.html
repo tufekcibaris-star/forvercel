@@ -1,987 +1,636 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Barış TÜFEKÇİ - Prompt Galeri</title>
-<style>
-    * {margin:0;padding:0;box-sizing:border-box;}
-    body {
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
-        background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-        min-height:100vh;
-        padding:15px;
-    }
-    .container {max-width:1400px;margin:0 auto;}
-
-    /* Header */
-    .header {
-        background:white;border-radius:15px;padding:20px;margin-bottom:20px;
-        box-shadow:0 10px 40px rgba(0,0,0,0.1);
-    }
-    .header-content {display:flex;align-items:center;gap:15px;margin-bottom:15px;}
-    .profile-pic {
-        width:60px;height:60px;flex-shrink:0;border-radius:50%;border:3px solid #667eea;
-        background:url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg') center/cover no-repeat;
-    }
-    .header-text h1 {font-size:20px;color:#2d3748;margin-bottom:3px;line-height:1.3;}
-    .header-text p {color:#718096;font-size:13px;}
-    .instagram-link {
-        display:flex;align-items:center;justify-content:center;gap:8px;
-        background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
-        color:white;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:600;font-size:14px;
-        transition:transform .3s;
-    }
-    .instagram-link:hover {transform:scale(1.05);}
-
-    /* Admin button */
-    .admin-btn {
-        position:fixed;bottom:20px;right:20px;width:50px;height:50px;background:#667eea;border-radius:50%;
-        border:none;color:white;font-size:20px;cursor:pointer;box-shadow:0 5px 20px rgba(102,126,234,0.4);
-        transition:all .3s;z-index:100;display:block;
-    }
-    .admin-btn:hover {transform:scale(1.1);}
-
-    /* Modal */
-    .modal {
-        display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-        background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:20px;
-    }
-    .modal.active {display:flex;}
-    .modal-content {
-        background:white;padding:30px;border-radius:20px;max-width:500px;width:100%;
-        max-height:90vh;overflow-y:auto;
-    }
-    .modal-content h2 {margin-bottom:20px;color:#2d3748;font-size:22px;}
-    .form-group {margin-bottom:20px;}
-    .form-group label {display:block;margin-bottom:8px;color:#4a5568;font-weight:600;font-size:14px;}
-    .form-group input,.form-group textarea {
-        width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;
-    }
-    .form-group textarea {min-height:120px;resize:vertical;}
-    .btn {
-        padding:12px 24px;border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:all .3s;font-size:14px;
-    }
-    .btn-primary {background:#667eea;color:white;margin-right:10px;}
-    .btn-primary:hover {background:#5568d3;}
-    .btn-secondary {background:#e2e8f0;color:#4a5568;}
-
-    /* Gallery */
-    .gallery {display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}
-    @media(min-width:768px){.gallery{grid-template-columns:repeat(3,1fr);}}
-    @media(min-width:1024px){.gallery{grid-template-columns:repeat(4,1fr);gap:20px;}}
-
-    /* Card */
-    .card {position:relative;width:100%;aspect-ratio:9/16;perspective:1000px;}
-    .card-inner {position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d;cursor:pointer;}
-    .card.flipped .card-inner {transform:rotateY(180deg);}
-    .card-front,.card-back {
-        position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:15px;overflow:hidden;
-        box-shadow:0 5px 20px rgba(0,0,0,0.2);
-    }
-
-    .card-front {
-        background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-        background-size:cover;background-position:center;background-repeat:no-repeat;
-        display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:600;padding:20px;text-align:center;
-    }
-
-    /* Hover efekt kaldırıldı */
-    .card-title {
-        position:absolute;bottom:10px;right:10px;z-index:2;
-        font-size:14px;background:rgba(0,0,0,0.4);
-        padding:6px 10px;border-radius:8px;text-shadow:0 1px 4px rgba(0,0,0,0.5);
-    }
-
-    .card-back {
-        background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-        transform:rotateY(180deg);padding:20px;display:flex;flex-direction:column;justify-content:space-between;
-        pointer-events:auto;
-    }
-
-    .prompt-text {
-        color:white;font-size:13px;line-height:1.6;overflow-y:auto;flex:1;margin-bottom:15px;
-    }
-
-    .copy-btn {
-        background:white;color:#667eea;padding:10px 20px;border:none;border-radius:10px;
-        font-weight:600;cursor:pointer;transition:all .3s;font-size:14px;z-index:10;position:relative;
-    }
-
-    .copy-btn:hover {transform:scale(1.05);}
-    .copy-btn.copied {background:#48bb78;color:white;}
-    .delete-btn {
-        position:absolute;top:10px;right:10px;background:#f56565;color:white;border:none;width:30px;height:30px;
-        border-radius:50%;cursor:pointer;font-size:18px;display:none;z-index:10;
-    }
-    .card:hover .delete-btn {display:block;}
-
-    .empty-state {grid-column:1 / -1;text-align:center;padding:60px 20px;color:white;}
-    .empty-state h3 {font-size:22px;margin-bottom:10px;}
-    .empty-state p {font-size:16px;opacity:0.9;}
-    .loading-state {grid-column:1 / -1;text-align:center;padding:60px 20px;color:white;}
-    .loading-spinner {
-        border:4px solid rgba(255,255,255,0.3);border-top:4px solid white;border-radius:50%;
-        width:50px;height:50px;animation:spin 1s linear infinite;margin:0 auto 20px;
-    }
-    @keyframes spin {0%{transform:rotate(0);}100%{transform:rotate(360deg);}}
-
-    @media(max-width:767px){
-        body{padding:10px;}
-        .header{padding:15px;}
-        .header-content{flex-direction:column;text-align:center;gap:10px;}
-        .header-text h1{font-size:18px;}
-        .header-text p{font-size:12px;}
-        .profile-pic{width:70px;height:70px;}
-        .instagram-link{width:100%;padding:12px;}
-        .card{height:280px;}
-        .modal-content{padding:20px;}
-        .modal-content h2{font-size:18px;}
-        .admin-btn{bottom:15px;right:15px;width:45px;height:45px;font-size:18px;}
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlham Panosu</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Inter font for a modern look */
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .card { transition: all 0.3s ease; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
+        .gallery-item { break-inside: avoid; margin-bottom: 1rem; }
+        .loading-spinner { border-top-color: #5b21b6; } /* Tailwind purple-700 */
+        .profile-photo {
+            width: 64px; /* Daire boyutu */
+            height: 64px;
+            object-fit: cover;
+            border-radius: 50%; /* Dairesel şekil */
+            border: 3px solid #5b21b6; /* Mor çerçeve */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <div class="header-content">
-            <div class="profile-pic"></div>
-            <div class="header-text">
-                <h1>Barış TÜFEKÇİ - Prompt Galeri</h1>
-                <p>Kişisel Yapay Zeka Projeleri</p>
-            </div>
-        </div>
-        <a href="https://instagram.com/yapanzeka_" target="_blank" class="instagram-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 8c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm6.406-2.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-            @yapanzeka_
-        </a>
-    </div>
-    <div class="gallery" id="gallery">
-        <div class="loading-state">
-            <div class="loading-spinner"></div>
-            <h3>Yükleniyor...</h3>
-            <p>Kartlar Firebase'den alınıyor</p>
-        </div>
-    </div>
-</div>
 
-<button class="admin-btn" id="adminBtn" onclick="openAddModal()">⚙️</button>
-
-<!-- Modallar -->
-<div class="modal" id="loginModal">
-    <div class="modal-content">
-        <h2>Yönetici Girişi</h2>
-        <div class="form-group">
-            <label>Şifre</label>
-            <input type="password" id="passwordInput" placeholder="Şifrenizi girin">
-        </div>
-        <button class="btn btn-primary" onclick="login()">Giriş Yap</button>
-        <button class="btn btn-secondary" onclick="closeModal('loginModal')">İptal</button>
-    </div>
-</div>
-
-<div class="modal" id="addCardModal">
-    <div class="modal-content">
-        <h2>Yeni Kart Ekle</h2>
-        <div class="form-group"><label>Görsel URL</label><input type="text" id="imageUrl" placeholder="https://..."></div>
-        <div class="form-group"><label>Prompt</label><textarea id="promptText" placeholder="Yapay zeka promptunu buraya yazın..."></textarea></div>
-        <button class="btn btn-primary" onclick="addCard()">Ekle</button>
-        <button class="btn btn-secondary" onclick="closeModal('addCardModal')">İptal</button>
-    </div>
-</div>
-
-<!-- Firebase SDK -->
-<script type="module">
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import {getFirestore,collection,addDoc,deleteDoc,doc,onSnapshot,query,orderBy} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-const firebaseConfig={apiKey:"AIzaSyAMwPYFRzG-5hTiumoyTVoOdTb7clcUazY",authDomain:"promptlar-db562.firebaseapp.com",projectId:"promptlar-db562",storageBucket:"promptlar-db562.firebasestorage.app",messagingSenderId:"409868683471",appId:"1:409868683471:web:797fe225e588546c1c8fba",measurementId:"G-RC6G04DM0N"};
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
-
-const ADMIN_PASSWORD='demo123';
-let isLoggedIn=false;
-
-function checkAdminStatus(){if(sessionStorage.getItem('adminLoggedIn')==='true'){isLoggedIn=true;}}
-function loadCards(){
-    const q=query(collection(db,'promptCards'),orderBy('date','desc'));
-    onSnapshot(q,(snapshot)=>{
-        const cards=[];snapshot.forEach(doc=>cards.push({id:doc.id,...doc.data()}));
-        renderGallery(cards);
-    },(err)=>{console.error(err);renderError();});
-}
-
-function renderGallery(cards){
-    const gallery=document.getElementById('gallery');
-    if(cards.length===0){gallery.innerHTML='<div class="empty-state"><h3>Henüz kart eklenmemiş</h3><p>İlk promptları görmek için bekleyin</p></div>';return;}
-
-    gallery.innerHTML=cards.map((c,i)=>`
-        <div class="card" data-index="${i}">
-            ${isLoggedIn?`<button class="delete-btn" data-delete-id="${c.id}">×</button>`:''}
-            <div class="card-inner">
-                <div class="card-front" style="background-image:url('${c.image}')">
-                    <div class="card-title">👆 Promptu görmek için tıkla</div>
-                </div>
-                <div class="card-back">
-                    <div class="prompt-text">${c.prompt}</div>
-                    <button class="copy-btn" data-copy-index="${i}">📋 Kopyala</button>
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Başlık ve Yönetici Girişi -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b border-gray-200">
+            <!-- Profil Fotoğrafı ve Başlık -->
+            <div class="flex items-center space-x-4">
+                <img id="profile-img" src="https://placehold.co/64x64/ccc/999?text=PT" alt="Profil Fotoğrafı" class="profile-photo" title="Profil Fotoğrafınız">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-900">Barış TÜFEKÇİ - Prompt Galeri</h1>
+                    <p class="mt-1 text-gray-600">İstediğiniz fotoğrafın üstüne tıklayıp promptu kopyalayabilirsiniz</p>
                 </div>
             </div>
-        </div>`).join('');
+            
+            <!-- Yönetici Şifresi Giriş Alanı -->
+            <div id="admin-login-area" class="mt-4 md:mt-0 flex flex-col items-end space-y-2">
+                 <div id="admin-status" class="text-sm font-medium text-red-500">Yönetici Değil</div>
 
-    gallery.onclick=function(e){
-        if(e.target.classList.contains('copy-btn')){
-            e.stopPropagation();
-            const idx=e.target.getAttribute('data-copy-index');
-            const txt=cards[idx].prompt;
-            navigator.clipboard.writeText(txt).then(()=>{
-                const t=e.target;t.innerHTML='✓ Kopyalandı!';t.classList.add('copied');
-                setTimeout(()=>{t.innerHTML='📋 Kopyala';t.classList.remove('copied');},2000);
-            });
-            return;
+                <form id="admin-login-form" class="flex space-x-2">
+                    <input type="password" id="admin-password-input" placeholder="Yönetici Şifresi"
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm w-40"
+                           autocomplete="off">
+                    <button type="submit"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                        Giriş Yap
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Yükleme Bölümü (Admin Paneli) -->
+        <section id="upload-section" class="mb-10 p-6 bg-white border border-gray-200 rounded-xl shadow-lg hidden">
+            <h2 class="text-2xl font-bold text-purple-700 mb-4">Yönetici Paneli</h2>
+            
+            <!-- Profil Fotoğrafı Yükleme Bölümü -->
+            <div class="mb-6 p-4 border border-purple-200 bg-purple-50 rounded-lg">
+                <h3 class="text-xl font-semibold text-purple-700 mb-3">Profil Fotoğrafı Güncelle</h3>
+                <form id="profile-upload-form" class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <input type="file" id="profile-file-input" accept="image/*" required
+                           class="w-full sm:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
+                    <button type="submit" id="profile-submit-button"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-200 flex-shrink-0">
+                        Fotoğrafı Yükle
+                    </button>
+                    <div id="profile-loading-spinner" class="loading-spinner h-6 w-6 border-4 border-gray-200 border-t-4 rounded-full animate-spin hidden"></div>
+                </form>
+            </div>
+
+
+            <h3 class="text-xl font-semibold text-purple-700 mb-3">Yeni Prompt Ekle</h3>
+            <form id="upload-form" class="space-y-4">
+                <input type="text" id="image-title" placeholder="Başlık (Gerekli)" required
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                <input type="url" id="image-url-input" placeholder="Görsel URL (Gerekli)" required
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                <textarea id="image-prompt" placeholder="Prompt Metni (Gerekli)" rows="4" required
+                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"></textarea>
+                
+                <div class="flex items-center space-x-3">
+                    <button type="submit" id="submit-button"
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-200 flex-shrink-0">
+                        Kaydet
+                    </button>
+                    <div id="loading-spinner" class="loading-spinner h-6 w-6 border-4 border-gray-200 border-t-4 rounded-full animate-spin hidden"></div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Galeri Alanı -->
+        <section id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-masonry='{"itemSelector": ".gallery-item", "columnWidth": ".gallery-sizer", "gutter": 10}'>
+             <div class="gallery-sizer w-full sm:w-1/2 md:w-1/3 lg:w-1/4"></div> <!-- Masonry için yardımcı eleman -->
+             <!-- Galeri ögeleri buraya JavaScript tarafından eklenecek -->
+        </section>
+        
+        <!-- Boş Durum Mesajı -->
+        <p id="empty-message" class="text-center text-gray-500 text-lg mt-12 hidden">Henüz hiç resim eklenmemiş.</p>
+    </main>
+
+    <!-- Modal (Prompt Gösterimi) -->
+    <div id="prompt-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div id="modal-content" class="bg-white rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300 scale-95" role="dialog" aria-modal="true">
+            <div class="flex justify-end p-3">
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600" aria-label="Kapat">
+                     <!-- İkon: Kapat -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="px-6 pb-6 pt-0 space-y-4">
+                <img id="modal-image" src="" alt="Genişletilmiş Görsel" class="w-full h-auto rounded-lg object-cover mb-4">
+                <h3 id="modal-title" class="text-2xl font-bold text-gray-800"></h3>
+                <p class="text-sm font-medium text-gray-500">Prompt Metni:</p>
+                <div class="relative">
+                    <textarea id="modal-prompt" readonly rows="6" 
+                              class="w-full p-4 border border-gray-200 bg-gray-50 rounded-lg text-gray-700 resize-none font-mono text-sm"></textarea>
+                    
+                    <!-- Kopyala Butonu -->
+                    <button id="copy-prompt-btn" title="Promptu Kopyala"
+                            class="absolute top-2 right-2 p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition duration-200 flex items-center space-x-2">
+                        <!-- İkon: Kopyala -->
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l4-4m0 0l-4-4m4 4H9"></path></svg>
+                        <span class="text-xs font-semibold">Kopyala</span>
+                    </button>
+                </div>
+                <div id="copy-feedback" class="text-sm text-green-600 font-semibold hidden">Kopyalandı!</div>
+
+            </div>
+        </div>
+    </div>
+    
+    <!-- Genel Mesaj Modalı (Hata/Bilgi Mesajları için) -->
+    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[9999] transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all duration-300 scale-95">
+            <h3 id="message-title" class="text-xl font-bold text-gray-800 mb-3"></h3>
+            <p id="message-text" class="text-gray-600 mb-5"></p>
+            <button id="close-message-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                Tamam
+            </button>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Firebase kütüphanelerini içe aktar
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+
+        // =========================================================================
+        // NETLIFY'DA GÜVENLİ ŞİFRE KONTROLÜ VE PROFİL FOTOĞRAFI YÜKLEME
+        // =========================================================================
+        
+        let db, auth, storage, userId;
+        const ADMIN_CONFIG_COLLECTION = 'admin';
+        const ADMIN_CONFIG_DOC_ID = 'config';
+        const PROFILE_PHOTO_STORAGE_PATH = 'profile/baris_profile_photo.png'; // Sabit dosya yolu
+
+        // Firebase Yapılandırması
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-gallery-app';
+
+        // Firebase uygulamasını başlat
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            storage = getStorage(app); // Storage servisini başlat
+            setLogLevel('debug'); // Hata ayıklama için
+        } catch (e) {
+            console.error("Firebase başlatılırken hata oluştu:", e);
+            showMessage("Hata", "Uygulama başlatılamadı. Lütfen daha sonra tekrar deneyin.", "error");
         }
-        if(e.target.classList.contains('delete-btn')){
-            e.stopPropagation();
-            const id=e.target.getAttribute('data-delete-id');
-            if(isLoggedIn && confirm('Bu kartı silmek istediğinizden emin misiniz?')){
-                deleteDoc(doc(db,'promptCards',id));
+
+        // --- DOM Elementleri ---
+        let uploadForm, galleryContainer, promptModal, modalPrompt, imageTitleInput, imageUrlInput, promptInput, 
+            modalImage, modalTitle, closeModalBtn, copyPromptBtn, copyFeedback, loadingSpinner, submitButton, uploadSection,
+            adminLoginForm, adminPasswordInput, adminLoginArea, adminStatus, emptyMessage, 
+            messageModal, messageTitle, messageText, closeMessageBtn, profileImg,
+            profileUploadForm, profileFileInput, profileSubmitButton, profileLoadingSpinner;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Galeri ve Yükleme
+            uploadForm = document.getElementById('upload-form');
+            galleryContainer = document.getElementById('gallery-container');
+            imageTitleInput = document.getElementById('image-title');
+            imageUrlInput = document.getElementById('image-url-input');
+            promptInput = document.getElementById('image-prompt');
+            loadingSpinner = document.getElementById('loading-spinner');
+            submitButton = document.getElementById('submit-button');
+            uploadSection = document.getElementById('upload-section');
+            emptyMessage = document.getElementById('empty-message');
+
+            // Başlık
+            profileImg = document.getElementById('profile-img');
+
+            // Modal
+            promptModal = document.getElementById('prompt-modal');
+            modalPrompt = document.getElementById('modal-prompt');
+            modalImage = document.getElementById('modal-image');
+            modalTitle = document.getElementById('modal-title');
+            closeModalBtn = document.getElementById('close-modal-btn');
+            copyPromptBtn = document.getElementById('copy-prompt-btn');
+            copyFeedback = document.getElementById('copy-feedback');
+
+            // Yönetici Girişi
+            adminLoginForm = document.getElementById('admin-login-form');
+            adminPasswordInput = document.getElementById('admin-password-input');
+            adminLoginArea = document.getElementById('admin-login-area');
+            adminStatus = document.getElementById('admin-status');
+            
+            // Profil Yükleme
+            profileUploadForm = document.getElementById('profile-upload-form');
+            profileFileInput = document.getElementById('profile-file-input');
+            profileSubmitButton = document.getElementById('profile-submit-button');
+            profileLoadingSpinner = document.getElementById('profile-loading-spinner');
+
+
+            // Mesaj Modalı
+            messageModal = document.getElementById('message-modal');
+            messageTitle = document.getElementById('message-title');
+            messageText = document.getElementById('message-text');
+            closeMessageBtn = document.getElementById('close-message-btn');
+
+            // Firebase'i başlat ve galeriyi yükle
+            initFirebaseAndLoadGallery();
+
+            // Form gönderim dinleyicisi (Prompt Ekle)
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', handleUpload);
             }
-            return;
-        }
-        const card=e.target.closest('.card');
-        if(card){card.classList.toggle('flipped');}
-    };
-}
 
-function renderError(){
-    document.getElementById('gallery').innerHTML='<div class="empty-state"><h3>Bağlantı hatası</h3><p>Firebase bağlantı sorunu</p></div>';
-}
-
-window.openAddModal=function(){
-    if(!isLoggedIn){document.getElementById('loginModal').classList.add('active');}
-    else{document.getElementById('addCardModal').classList.add('active');}
-};
-
-window.closeModal=function(id){
-    document.getElementById(id).classList.remove('active');
-    if(id==='addCardModal'){document.getElementById('imageUrl').value='';document.getElementById('promptText').value='';}
-    if(id==='loginModal'){document.getElementById('passwordInput').value='';}
-};
-
-window.login=function(){
-    const p=document.getElementById('passwordInput').value;
-    if(p===ADMIN_PASSWORD){
-        isLoggedIn=true;sessionStorage
-
-Şunu dedin:
-kodun tamammını seçip kopyalayacağım şekilde bana yaz
-ChatGPT:
-
-Tabii, işte tamamı kopyalanabilir şekilde sade ve eksiksiz HTML/CSS kodun 👇
-
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Video Kesitlerinden Reels Oluşturucu</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #f9f9ff, #e3f2fd);
-        color: #333;
-        text-align: center;
-        padding: 50px 20px;
-        margin: 0;
-    }
-
-    h1 {
-        font-size: 2.2em;
-        margin-bottom: 10px;
-        color: #2c3e50;
-    }
-
-    p {
-        font-size: 1.1em;
-        color: #555;
-        margin-bottom: 30px;
-    }
-
-    .tools {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 25px;
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
-    .tool {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-        padding: 25px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .tool:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    }
-
-    .tool h2 {
-        font-size: 1.4em;
-        color: #0077c2;
-        margin-bottom: 10px;
-    }
-
-    .tool p {
-        font-size: 0.95em;
-        color: #555;
-        margin-bottom: 15px;
-    }
-
-    .tool a {
-        display: inline-block;
-        text-decoration: none;
-        background: #0077c2;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        transition: background 0.3s ease;
-    }
-
-    .tool a:hover {
-        background: #005f9e;
-    }
-
-    footer {
-        margin-top: 60px;
-        font-size: 0.9em;
-        color: #777;
-    }
-</style>
-</head>
-<body>
-
-<h1>Ücretsiz Reels Oluşturma Araçları</h1>
-<p>7 dakikalık YouTube videolarından 15–20 saniyelik Reels kesitleri oluşturmak için en iyi ücretsiz araçlar:</p>
-
-<div class="tools">
-    <div class="tool">
-        <h2><a href="https://www.opus.pro" target="_blank">OpusClip</a></h2>
-        <p>Yapay zekâ destekli. YouTube veya dosya yükleme ile çalışır. Otomatik olarak ilgi çekici kesitler çıkarır.</p>
-    </div>
-
-    <div class="tool">
-        <h2><a href="https://vidyo.ai" target="_blank">Vidyo.ai</a></h2>
-        <p>Uzun videolardan kısa dikey kesitler oluşturur. Otomatik altyazı, vurgu ve çerçeve düzenleme özellikleri vardır.</p>
-    </div>
-
-    <div class="tool">
-        <h2><a href="https://submagic.co" target="_blank">Submagic</a></h2>
-        <p>Video yükleyebilir, otomatik kesit çıkarabilir ve Reels formatında metin efektleri ekleyebilirsin.</p>
-    </div>
-
-    <div class="tool">
-        <h2><a href="https://clip.fm" target="_blank">Clip.fm</a></h2>
-        <p>Podcast veya YouTube videolarını Reels’e dönüştürür. Upload seçeneği mevcuttur, sadece link gerekmez.</p>
-    </div>
-
-    <div class="tool">
-        <h2><a href="https://pictory.ai" target="_blank">Pictory</a></h2>
-        <p>Uzun videolardan en etkileyici anları seçer, kısa video formatında düzenler. Ücretsiz deneme sunar.</p>
-    </div>
-
-    <div class="tool">
-        <h2><a href="https://recast.studio" target="_blank">Recast Studio</a></h2>
-        <p>AI ile YouTube veya yüklenen videolardan kısa Reels oluşturur. Otomatik altyazı ve klip başlığı ekler.</p>
-    </div>
-</div>
-
-<footer>
-    <p>Hazırlayan: <strong>Barış Tüfekçi</strong> | Yapay Zekâ ile İçerik Üretimi</p>
-</footer>
-
-</body>
-</html>
-
-Bu dosyayı doğrudan “reels-araclar.html” adıyla kaydedip tarayıcıda açabilirsin.
-Tüm butonlar aktif ve tıklanabilir şekilde çalışır ✅
-Şunu dedin:
-kafan karıştı sanırım bu sohbetin başından beri incele
-ChatGPT:
-
-Haklısın Barış, şimdiye kadarki sohbetin tamamına bakarak özetleyeyim ki aynı sayfada olalım 👇
-
-Bu konuşma boyunca sen şunu istedin:
-
-    “7 dakikalık YouTube videomdan 15–20 saniyelik Reels’ler otomatik olarak oluşturan, ücretsiz web siteleri hangileri?
-    Video henüz YouTube’da değil, yani dosya olarak yükleyebilmeliyim.”
-
-Ben de sana bunun için birkaç yapay zekâ destekli web aracı önerdim:
-
-    OpusClip – dosya yükleme destekli, otomatik kesit çıkarıyor
-
-    Vidyo.ai – uzun videolardan kısa Reels kesitleri oluşturuyor
-
-    Submagic.co – video yükleyip Reels’e uygun biçimde kesiyor, efekt ve altyazı ekliyor
-
-    Clip.fm – link gerekmeden dosya yükleyebiliyorsun
-
-    Pictory.ai – otomatik olarak önemli sahneleri seçiyor
-
-    Recast Studio – dosya yükleme, altyazı ve başlık ekleme desteği var
-
-Sonra da sen bunları tek bir sayfada şık bir biçimde gösterebileceğin, kopyalanabilir HTML sayfa kodu istedin.
-Benim yazdığım HTML dosyası da tam olarak bu:
-
-    Başlık “Ücretsiz Reels Oluşturma Araçları”
-
-    Yukarıdaki 6 web sitesini açıklamalarıyla listeliyor
-
-    Renkli, sade ve tamamen kopyalanabilir biçimde
-
-Yani aslında doğru yöndeyiz ✅
-Yine de senin amacına göre iki olasılık var:
-
-    Gerçekten bu web sitelerini kullanıp Reels kesitleri oluşturmak istiyorsan, ben sana “hangi site tam olarak dosya yükleme ile ücretsiz çalışıyor” diye test edilmiş ve güncel listeyi çıkarabilirim.
-
-    HTML sayfasını geliştirip, örneğin “video yükleme formu + butonlarla yönlendirme” gibi bir şey istiyorsan, onu da kodlayabilirim.
-
-Hangisini istiyorsun şu anda?
-👉 Güncel, gerçekten ücretsiz “yükleme destekli” sitelerin listesi mi,
-yoksa “video yükleyip Reels çıkaran HTML arayüz” kodu mu?
-Şunu dedin:
-hayır html düzenleme istedim
-ChatGPT:
-
-Tamam Barış — şimdi sana tamamı kopyalanıp yapıştırılabilecek, daha önce verdiğin asıl proje kodunu temel alarak mobilde kopyalama çalışmama sorununu çözen, ön yüzdeki (overlay) hover efektini tamamen kaldıran ve eksik kalan JavaScript parçalarını tamamlayan tam HTML dosyasını veriyorum.
-
-Önemli düzeltmeler:
-
-    Kart ön yüzü dönünce ön yüzün dokunmaları engellendi (pointer-events: none) — böylece arka yüzdeki Kopyala butonu mobilde de çalışır.
-
-    CSS’de .card-title hover büyütme kaldırıldı.
-
-    card z-index ayarları: arka yüz flip olduğunda öne gelecek şekilde düzenlendi.
-
-    Event delegation ve stopPropagation() mantığı korunarak kopyalama/silme işlemleri stabil çalışır.
-
-    Eksik kalan JS kısmı (giriş sonrası davranış, modal kapatma olayları, Escape/Enter dinleyicileri) tamamlandı.
-
-    Kod tamamen tek parça, kopyalayabilirsiniz.
-
-Aşağıdaki dosyayı komple seçip kopyalayın:
-
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Barış TÜFEKÇİ - Prompt Galeri</title>
-<style>
-/* Reset ve temel */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  color:#222;
-  min-height:100vh;
-  padding:15px;
-}
-
-/* Container */
-.container{max-width:1400px;margin:0 auto}
-
-/* Header */
-.header{
-  background:#fff;border-radius:15px;padding:20px;margin-bottom:20px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.08);
-}
-.header-content{display:flex;align-items:center;gap:15px;margin-bottom:15px}
-.profile-pic{
-  width:60px;height:60px;border-radius:50%;flex-shrink:0;border:3px solid #667eea;
-  background-image:url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg');
-  background-size:cover;background-position:center;background-repeat:no-repeat;
-}
-.header-text h1{font-size:20px;color:#2d3748;line-height:1.2;margin-bottom:3px}
-.header-text p{color:#718096;font-size:13px}
-
-/* Instagram link */
-.instagram-link{
-  display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;text-decoration:none;
-  color:#fff;font-weight:600;font-size:14px;
-  background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
-}
-.instagram-link:hover{transform:none} /* hover scale removed to avoid excessive effects on mobile */
-
-/* Admin button */
-.admin-btn{
-  position:fixed;right:20px;bottom:20px;width:50px;height:50px;border-radius:50%;border:none;
-  background:#667eea;color:white;font-size:20px;cursor:pointer;z-index:1200;
-  box-shadow:0 6px 18px rgba(0,0,0,0.18)
-}
-.admin-btn:active{transform:scale(.98)}
-
-/* Modal */
-.modal{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;
-  align-items:center;justify-content:center;padding:20px;
-}
-.modal.active{display:flex}
-.modal-content{
-  width:100%;max-width:520px;background:#fff;padding:26px;border-radius:14px;max-height:90vh;overflow:auto;
-}
-.modal-content h2{margin-bottom:18px;color:#2d3748;font-size:20px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;margin-bottom:8px;color:#475569;font-weight:600;font-size:14px}
-.form-group input,.form-group textarea{
-  width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;
-}
-.form-group textarea{min-height:120px;resize:vertical}
-
-/* Buttons */
-.btn{padding:10px 18px;border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:14px}
-.btn-primary{background:#667eea;color:#fff;margin-right:8px}
-.btn-primary:active{transform:translateY(1px)}
-.btn-secondary{background:#e2e8f0;color:#344054}
-
-/* Grid / gallery */
-.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-@media(min-width:768px){.gallery{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:1024px){.gallery{grid-template-columns:repeat(4,1fr);gap:20px}}
-
-/* Card (3D flip) */
-.card{position:relative;width:100%;aspect-ratio:9/16;perspective:1000px}
-.card-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d;cursor:pointer}
-.card.flipped .card-inner{transform:rotateY(180deg)}
-.card-front,.card-back{
-  position:absolute;inset:0;border-radius:14px;overflow:hidden;backface-visibility:hidden;box-shadow:0 6px 20px rgba(0,0,0,.16);
-  display:flex;flex-direction:column;
-}
-
-/* front */
-.card-front{
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  align-items:center;justify-content:center;padding:18px;text-align:center;color:#fff;font-weight:700;
-  background-size:cover;background-position:center;background-repeat:no-repeat;
-  z-index:2; /* front normally on top */
-  pointer-events:auto; /* allow tapping to flip */
-}
-
-/* card title overlay on front - hover removed */
-.card-title{
-  position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.35);
-  color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;
-  z-index:3;
-}
-
-/* back */
-.card-back{
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  transform:rotateY(180deg);
-  padding:16px;justify-content:space-between;color:#fff;z-index:1;
-  pointer-events:auto;
-}
-
-/* z-index & pointer-events adjustments when flipped:
-   - front should not intercept pointer events when flipped,
-   - back should be on top when flipped.
-*/
-.card.flipped .card-front{z-index:1;pointer-events:none}
-.card.flipped .card-back{z-index:3;pointer-events:auto}
-
-/* prompt text + copy button */
-.prompt-text{color:#fff;font-size:13px;line-height:1.6;overflow:auto;flex:1;margin-bottom:12px;padding-right:6px}
-.copy-btn{
-  background:#fff;color:#667eea;border:none;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;
-  font-size:14px;align-self:center;
-  transition:transform .2s;
-  z-index:5;position:relative;
-}
-.copy-btn:active{transform:translateY(1px)}
-.copy-btn.copied{background:#48bb78;color:#fff}
-
-/* delete button (admin) */
-.delete-btn{
-  position:absolute;top:10px;right:10px;background:#f56565;color:#fff;border:none;width:34px;height:34px;border-radius:50%;
-  display:none;align-items:center;justify-content:center;font-size:18px;cursor:pointer;z-index:6;
-}
-.card:hover .delete-btn{display:block}
-
-/* empty / loading states */
-.empty-state, .loading-state{grid-column:1 / -1;text-align:center;padding:60px 20px;color:#fff}
-.loading-spinner{border:4px solid rgba(255,255,255,.25);border-top:4px solid #fff;border-radius:50%;width:48px;height:48px;margin:0 auto 18px;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* responsive tweaks */
-@media(max-width:767px){
-  body{padding:10px}
-  .header{padding:14px}
-  .header-content{flex-direction:column;text-align:center;gap:10px}
-  .profile-pic{width:70px;height:70px}
-  .instagram-link{width:100%;padding:12px}
-  .card{height:300px}
-  .admin-btn{width:46px;height:46px;right:14px;bottom:14px}
-}
-</style>
-</head>
-<body>
-<div class="container">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-content">
-      <div class="profile-pic" role="img" aria-label="Profil"></div>
-      <div class="header-text">
-        <h1>Barış TÜFEKÇİ - Prompt Galeri</h1>
-        <p>Kişisel Yapay Zeka Projeleri</p>
-      </div>
-    </div>
-    <a class="instagram-link" href="https://instagram.com/yapanzeka_" target="_blank" rel="noopener noreferrer">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 8c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm6.406-2.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      @yapanzeka_
-    </a>
-  </div>
-
-  <!-- Gallery -->
-  <div id="gallery" class="gallery">
-    <div class="loading-state">
-      <div class="loading-spinner" aria-hidden="true"></div>
-      <h3>Yükleniyor...</h3>
-      <p>Kartlar Firebase'den alınıyor</p>
-    </div>
-  </div>
-</div>
-
-<!-- Admin Button -->
-<button id="adminBtn" class="admin-btn" title="Yönetici">⚙️</button>
-
-<!-- Login Modal -->
-<div id="loginModal" class="modal" aria-hidden="true">
-  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
-    <h2 id="loginTitle">Yönetici Girişi</h2>
-    <div class="form-group">
-      <label for="passwordInput">Şifre</label>
-      <input id="passwordInput" type="password" placeholder="Şifrenizi girin" />
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px">
-      <button class="btn btn-primary" onclick="login()">Giriş Yap</button>
-      <button class="btn btn-secondary" onclick="closeModal('loginModal')">İptal</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Card Modal -->
-<div id="addCardModal" class="modal" aria-hidden="true">
-  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="addCardTitle">
-    <h2 id="addCardTitle">Yeni Kart Ekle</h2>
-    <div class="form-group">
-      <label for="imageUrl">Görsel URL</label>
-      <input id="imageUrl" type="text" placeholder="https://..." />
-    </div>
-    <div class="form-group">
-      <label for="promptText">Prompt</label>
-      <textarea id="promptText" placeholder="Yapay zeka promptunu buraya yazın..."></textarea>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px">
-      <button class="btn btn-primary" onclick="addCard()">Ekle</button>
-      <button class="btn btn-secondary" onclick="closeModal('addCardModal')">İptal</button>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase + App Script -->
-<script type="module">
-/* Firebase imports */
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-/* Firebase config (kendi config'in) */
-const firebaseConfig = {
-  apiKey: "AIzaSyAMwPYFRzG-5hTiumoyTVoOdTb7clcUazY",
-  authDomain: "promptlar-db562.firebaseapp.com",
-  projectId: "promptlar-db562",
-  storageBucket: "promptlar-db562.firebasestorage.app",
-  messagingSenderId: "409868683471",
-  appId: "1:409868683471:web:797fe225e588546c1c8fba",
-  measurementId: "G-RC6G04DM0N"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* Admin */
-const ADMIN_PASSWORD = 'demo123';
-let isLoggedIn = false;
-
-/* Check session */
-function checkAdminStatus(){
-  if(sessionStorage.getItem('adminLoggedIn') === 'true'){
-    isLoggedIn = true;
-  }
-}
-
-/* Load cards realtime */
-function loadCards(){
-  const q = query(collection(db, 'promptCards'), orderBy('date', 'desc'));
-  onSnapshot(q, snapshot => {
-    const cards = [];
-    snapshot.forEach(d => cards.push({ id: d.id, ...d.data() }));
-    renderGallery(cards);
-  }, error => {
-    console.error('Firebase snapshot error:', error);
-    renderError();
-  });
-}
-
-/* Render gallery */
-function renderGallery(cards){
-  const gallery = document.getElementById('gallery');
-
-  if(!cards || cards.length === 0){
-    gallery.innerHTML = `
-      <div class="empty-state">
-        <h3>Henüz kart eklenmemiş</h3>
-        <p>İlk promptları görmek için bekleyin</p>
-      </div>
-    `;
-    return;
-  }
-
-  gallery.innerHTML = cards.map((c, idx) => `
-    <div class="card" data-index="${idx}" data-id="${c.id}">
-      ${isLoggedIn ? `<button class="delete-btn" data-delete-id="${c.id}" aria-label="Sil">×</button>` : ''}
-      <div class="card-inner" tabindex="0" role="button" aria-pressed="false">
-        <div class="card-front" style="background-image:url('${escapeHtmlAttr(c.image)}')">
-          <div class="card-title">👆 Promptu görmek için tıkla</div>
-        </div>
-        <div class="card-back">
-          <div class="prompt-text">${escapeHtml(c.prompt)}</div>
-          <button class="copy-btn" data-copy-index="${idx}">📋 Kopyala</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-
-  /* Single delegated click handler for gallery */
-  gallery.onclick = function(e){
-    const target = e.target;
-
-    // copy button
-    if(target.closest && target.closest('.copy-btn')){
-      e.stopPropagation();
-      const btn = target.closest('.copy-btn');
-      const idx = btn.getAttribute('data-copy-index');
-      const prompt = cards[idx] && cards[idx].prompt ? cards[idx].prompt : '';
-      copyToClipboard(prompt, btn);
-      return;
-    }
-
-    // delete button
-    if(target.closest && target.closest('.delete-btn')){
-      e.stopPropagation();
-      const del = target.closest('.delete-btn');
-      const id = del.getAttribute('data-delete-id');
-      if(isLoggedIn && confirm('Bu kartı silmek istediğinizden emin misiniz?')){
-        deleteDoc(doc(db, 'promptCards', id)).catch(err => {
-          console.error('Delete error:', err);
-          alert('Kart silinirken hata oluştu.');
+            // Form gönderim dinleyicisi (Profil Fotoğrafı)
+            if (profileUploadForm) {
+                profileUploadForm.addEventListener('submit', handleProfilePhotoUpload);
+            }
+
+            // Modal kapatma olayları
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', hideModal);
+            }
+            if (promptModal) {
+                promptModal.addEventListener('click', (e) => {
+                    // Modal'ın dışına tıklanırsa kapat
+                    if (e.target === promptModal) {
+                        hideModal();
+                    }
+                });
+            }
+
+            // Prompt kopyalama
+            if (copyPromptBtn) {
+                copyPromptBtn.addEventListener('click', copyPrompt);
+            }
+            
+            // Yönetici Giriş Formu
+            if (adminLoginForm) {
+                adminLoginForm.addEventListener('submit', handleAdminLogin);
+            }
+            
+            // Mesaj Modalı Kapatma
+            if (closeMessageBtn) {
+                closeMessageBtn.addEventListener('click', hideMessage);
+            }
         });
-      }
-      return;
-    }
 
-    // Otherwise, flip the clicked card (if clicked outside of buttons)
-    const cardEl = target.closest('.card');
-    if(cardEl){
-      cardEl.classList.toggle('flipped');
-    }
-  };
+        // --- Yardımcı Fonksiyonlar ---
 
-  /* Keyboard accessibility: Enter toggles flip on focused card-inner */
-  document.querySelectorAll('.card-inner').forEach(inner => {
-    inner.addEventListener('keydown', (ev) => {
-      if(ev.key === 'Enter' || ev.key === ' '){
-        ev.preventDefault();
-        const card = inner.closest('.card');
-        if(card) card.classList.toggle('flipped');
-      }
-    });
-  });
+        function showMessage(title, text, type = 'info') {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            
+            // Mesaj tipine göre renk ayarlaması (isteğe bağlı)
+            if (type === 'error') {
+                 messageTitle.classList.remove('text-gray-800');
+                 messageTitle.classList.add('text-red-600');
+            } else {
+                messageTitle.classList.add('text-gray-800');
+                messageTitle.classList.remove('text-red-600');
+            }
 
-  /* Helper to escape HTML (safer rendering in this context) */
-  function escapeHtml(str){
-    if(!str) return '';
-    return String(str)
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;');
-  }
+            messageModal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+        
+        function hideMessage() {
+            messageModal.classList.add('opacity-0', 'pointer-events-none');
+        }
 
-  function escapeHtmlAttr(str){
-    if(!str) return '';
-    return String(str)
-      .replaceAll('&','&amp;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'",'&#39;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;');
-  }
-}
+        function showModal(title, prompt, imageUrl) {
+            modalTitle.textContent = title;
+            modalPrompt.value = prompt;
+            modalImage.src = imageUrl;
+            
+            // Görsel yüklenemezse placeholder göster
+            modalImage.onerror = () => {
+                 modalImage.src = 'https://placehold.co/500x300/e5e7eb/7f1d1d?text=Görsel+Bulunamadı';
+            };
 
-/* Copy helper */
-function copyToClipboard(text, btnElement){
-  if(!text) return;
-  if(navigator.clipboard && window.isSecureContext){
-    navigator.clipboard.writeText(text).then(() => {
-      showCopiedState(btnElement);
-    }).catch(err => {
-      // fallback
-      fallbackCopy(text, btnElement);
-    });
-  } else {
-    fallbackCopy(text, btnElement);
-  }
-}
-function fallbackCopy(text, btnElement){
-  try{
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showCopiedState(btnElement);
-  }catch(e){
-    console.error('Copy failed', e);
-    alert('Kopyalama başarısız oldu.');
-  }
-}
-function showCopiedState(button){
-  if(!button) return;
-  const orig = button.innerHTML;
-  button.innerHTML = '✓ Kopyalandı!';
-  button.classList.add('copied');
-  setTimeout(() => {
-    button.innerHTML = orig;
-    button.classList.remove('copied');
-  }, 1800);
-}
+            promptModal.classList.remove('opacity-0', 'pointer-events-none');
+            // Modal içeriğini büyüt
+            document.getElementById('modal-content').classList.remove('scale-95');
+            document.getElementById('modal-content').classList.add('scale-100');
+        }
 
-/* Render error */
-function renderError(){
-  const gallery = document.getElementById('gallery');
-  gallery.innerHTML = `
-    <div class="empty-state">
-      <h3>Bağlantı hatası</h3>
-      <p>Firebase'e bağlanırken bir sorun oluştu</p>
-    </div>
-  `;
-}
+        function hideModal() {
+            document.getElementById('modal-content').classList.remove('scale-100');
+            document.getElementById('modal-content').classList.add('scale-95');
+            // Biraz gecikmeyle kapat
+            setTimeout(() => {
+                promptModal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+            
+            // Kopyalama geri bildirimini sıfırla
+            copyFeedback.classList.add('hidden');
+            copyPromptBtn.classList.remove('bg-green-600');
+            copyPromptBtn.classList.add('bg-purple-500');
+        }
+        
+        function copyPrompt() {
+            // Tarayıcı kısıtlamaları nedeniyle document.execCommand kullanılıyor
+            try {
+                modalPrompt.select();
+                document.execCommand('copy');
+                copyFeedback.textContent = "Prompt başarıyla kopyalandı!";
+                copyFeedback.classList.remove('hidden');
+                copyPromptBtn.classList.remove('bg-purple-500');
+                copyPromptBtn.classList.add('bg-green-600');
+                
+                setTimeout(() => {
+                    copyFeedback.classList.add('hidden');
+                    copyPromptBtn.classList.remove('bg-green-600');
+                    copyPromptBtn.classList.add('bg-purple-500');
+                }, 2000);
+            } catch (err) {
+                console.error('Kopyalama başarısız:', err);
+                copyFeedback.textContent = "Kopyalama başarısız oldu.";
+                copyFeedback.classList.remove('hidden');
+                setTimeout(() => copyFeedback.classList.add('hidden'), 3000);
+            }
+        }
+        
+        // Yönetici şifresini ve fotoğraf URL'sini Firestore'dan alır
+        async function getAdminConfig() {
+            const adminDocRef = doc(db, 'artifacts', appId, 'public', 'data', ADMIN_CONFIG_COLLECTION, ADMIN_CONFIG_DOC_ID);
+            try {
+                const docSnap = await getDoc(adminDocRef);
+                if (docSnap.exists()) {
+                    return docSnap.data();
+                }
+            } catch (error) {
+                console.error("Yönetici yapılandırması alınamadı:", error);
+            }
+            return { password: null, profileUrl: null };
+        }
+        
+        // Yönetici şifresini ve fotoğraf URL'sini Firestore'a kaydeder
+        async function setAdminConfig(data) {
+            const adminDocRef = doc(db, 'artifacts', appId, 'public', 'data', ADMIN_CONFIG_COLLECTION, ADMIN_CONFIG_DOC_ID);
+             try {
+                await setDoc(adminDocRef, { ...data, timestamp: serverTimestamp() }, { merge: true });
+                return true;
+            } catch (error) {
+                console.error("Yönetici yapılandırması kaydedilemedi:", error);
+                showMessage("Hata", "Yönetici ayarları veritabanına kaydedilemedi.", "error");
+                return false;
+            }
+        }
 
-/* Open add modal (admin) */
-window.openAddModal = function(){
-  if(!isLoggedIn){
-    document.getElementById('loginModal').classList.add('active');
-    document.getElementById('loginModal').setAttribute('aria-hidden','false');
-  } else {
-    document.getElementById('addCardModal').classList.add('active');
-    document.getElementById('addCardModal').setAttribute('aria-hidden','false');
-    document.getElementById('imageUrl').focus();
-  }
-};
+        async function updateProfileImage(url) {
+            profileImg.src = url;
+            profileImg.onerror = () => {
+                profileImg.src = 'https://placehold.co/64x64/ccc/999?text=PT';
+            };
+        }
 
-/* Close modal */
-window.closeModal = function(id){
-  const m = document.getElementById(id);
-  if(!m) return;
-  m.classList.remove('active');
-  m.setAttribute('aria-hidden','true');
-  if(id === 'addCardModal'){
-    document.getElementById('imageUrl').value = '';
-    document.getElementById('promptText').value = '';
-  }
-  if(id === 'loginModal'){
-    document.getElementById('passwordInput').value = '';
-  }
-};
+        async function loadProfilePhoto() {
+            const config = await getAdminConfig();
+            if (config.profileUrl) {
+                updateProfileImage(config.profileUrl);
+            }
+        }
 
-/* Login */
-window.login = function(){
-  const pw = document.getElementById('passwordInput').value || '';
-  if(pw === ADMIN_PASSWORD){
-    isLoggedIn = true;
-    sessionStorage.setItem('adminLoggedIn','true');
-    closeModal('loginModal');
-    // open add modal directly after successful login
-    document.getElementById('addCardModal').classList.add('active');
-    document.getElementById('addCardModal').setAttribute('aria-hidden','false');
-    document.getElementById('imageUrl').focus();
-    // reload cards to show delete buttons
-    loadCards();
-  } else {
-    alert('Hatalı şifre!');
-  }
-};
+        async function checkAdminAccess(password) {
+            const config = await getAdminConfig();
+            const storedPassword = config.password;
+            let isAdmin = false;
 
-/* Add card */
-window.addCard = async function(){
-  if(!isLoggedIn) return alert('Yönetici girişi gerekli.');
-  const imageUrl = (document.getElementById('imageUrl').value || '').trim();
-  const promptText = (document.getElementById('promptText').value || '').trim();
-  if(!imageUrl || !promptText) return alert('Lütfen tüm alanları doldurun!');
-  const title = promptText.substring(0,50) + (promptText.length > 50 ? '...' : '');
+            if (!storedPassword) {
+                 // 1. Durum: Şifre ilk defa ayarlanıyor
+                 if (password) {
+                     const isSet = await setAdminConfig({ password: password });
+                     if (isSet) {
+                         isAdmin = true;
+                         adminStatus.textContent = "Yönetici (Şifre Ayarlandı)";
+                         showMessage("Başarılı", "Yönetici şifresi ilk kez ayarlandı ve giriş yapıldı.", "info");
+                     }
+                 } else {
+                     adminStatus.textContent = "Yönetici Değil (Şifre Ayarlanmalı)";
+                 }
 
-  try {
-    await addDoc(collection(db,'promptCards'), {
-      image: imageUrl,
-      prompt: promptText,
-      title,
-      date: new Date().toISOString()
-    });
-    closeModal('addCardModal');
-  } catch(err){
-    console.error('Add card error',err);
-    alert('Kart eklenirken hata oluştu.');
-  }
-};
+            } else if (password && password === storedPassword) {
+                // 2. Durum: Giriş başarılı
+                isAdmin = true;
+                adminStatus.textContent = "Yönetici";
+            } else if (password) {
+                // 3. Durum: Şifre yanlış
+                showMessage("Hata", "Yanlış yönetici şifresi.", "error");
+                adminStatus.textContent = "Yönetici Değil (Yanlış Şifre)";
+            } else {
+                // 4. Durum: Şifre girilmedi ama şifre ayarlı
+                adminStatus.textContent = "Yönetici Değil";
+            }
+            
+            // UI Güncelleme
+            if (isAdmin) {
+                adminStatus.classList.remove('text-red-500');
+                adminStatus.classList.add('text-green-600');
+                uploadSection.classList.remove('hidden');
+            } else {
+                adminStatus.classList.remove('text-green-600');
+                adminStatus.classList.add('text-red-500');
+                uploadSection.classList.add('hidden');
+            }
 
-/* Modal background click to close */
-document.querySelectorAll('.modal').forEach(modalEl => {
-  modalEl.addEventListener('click', (ev) => {
-    if(ev.target === modalEl){
-      modalEl.classList.remove('active');
-      modalEl.setAttribute('aria-hidden','true');
-    }
-  });
-});
+            return isAdmin;
+        }
+        
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const password = adminPasswordInput.value;
+            if (password) {
+                await checkAdminAccess(password);
+                adminPasswordInput.value = ''; // Şifreyi temizle
+            }
+        }
+        
+        // --- Profil Fotoğrafı Yükleme İşlemleri ---
+        async function handleProfilePhotoUpload(e) {
+            e.preventDefault();
 
-/* ESC closes modals */
-document.addEventListener('keydown', (ev) => {
-  if(ev.key === 'Escape'){
-    document.querySelectorAll('.modal.active').forEach(m => {
-      m.classList.remove('active');
-      m.setAttribute('aria-hidden','true');
-    });
-  }
-});
+            if (uploadSection.classList.contains('hidden')) {
+                 showMessage("Yetki Hatası", "Profil fotoğrafı yükleyebilmek için yönetici şifresiyle giriş yapmalısınız.", "error");
+                 return;
+            }
 
-/* Enter in password field triggers login */
-document.getElementById('passwordInput').addEventListener('keydown', (ev) => {
-  if(ev.key === 'Enter') login();
-});
+            const file = profileFileInput.files[0];
+            if (!file) {
+                showMessage("Uyarı", "Lütfen bir dosya seçin.", "info");
+                return;
+            }
+            
+            profileSubmitButton.disabled = true;
+            profileLoadingSpinner.classList.remove('hidden');
 
-/* Admin button open */
-document.getElementById('adminBtn').addEventListener('click', () => openAddModal());
+            try {
+                // Firebase Storage'a yükle
+                const storageRef = ref(storage, PROFILE_PHOTO_STORAGE_PATH);
+                const snapshot = await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(snapshot.ref);
 
-/* Initialize */
-checkAdminStatus();
-loadCards();
+                // URL'yi Firestore'a kaydet
+                await setAdminConfig({ profileUrl: downloadURL });
+                
+                // Başlıkta fotoğrafı güncelle
+                updateProfileImage(downloadURL);
 
-</script>
+                showMessage("Başarılı", "Profil fotoğrafı başarıyla güncellendi!", "info");
+                profileFileInput.value = ''; // Input'u temizle
+
+            } catch (e) {
+                console.error("Profil fotoğrafı yüklenirken hata oluştu: ", e);
+                showMessage("Hata", "Profil fotoğrafı yüklenirken bir hata oluştu.", "error");
+            } finally {
+                profileSubmitButton.disabled = false;
+                profileLoadingSpinner.classList.add('hidden');
+            }
+        }
+
+
+        // --- Firebase ve Kimlik Doğrulama ---
+
+        async function initFirebaseAndLoadGallery() {
+            if (!auth) return; // Firebase başlatılamadıysa çık
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    console.log("Kullanıcı doğrulandı (UID):", user.uid);
+                    userId = user.uid;
+                    // Profil fotoğrafını ve Admin durumunu kontrol et
+                    loadProfilePhoto();
+                    await checkAdminAccess(null);
+                    // Galeriyi yükle
+                    loadGallery();
+                } else {
+                    console.log("Kullanıcı doğrulanıyor...");
+                    try {
+                        // Canvas ortamından gelen token ile giriş yapmayı dene
+                        if (typeof __initial_auth_token !== 'undefined') {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            // Token yoksa anonim giriş yap
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Kimlik doğrulama hatası:", error);
+                        showMessage("Hata", "Kullanıcı kimliği doğrulanamadı. Galeri yüklenemiyor.", "error");
+                    }
+                }
+            });
+        }
+
+        // --- Veri Yükleme İşlemleri (Prompt Ekle) ---
+
+        async function handleUpload(e) {
+            e.preventDefault();
+            
+            // Yönetici değilse yüklemeyi engelle
+            if (uploadSection.classList.contains('hidden')) {
+                 showMessage("Yetki Hatası", "Yükleme yapabilmek için yönetici şifresiyle giriş yapmalısınız.", "error");
+                 return;
+            }
+
+            const title = imageTitleInput.value.trim();
+            const imageUrl = imageUrlInput.value.trim();
+            const promptText = promptInput.value.trim();
+
+            if (!title || !imageUrl || !promptText) {
+                showMessage("Uyarı", "Lütfen tüm alanları doldurun.", "info");
+                return;
+            }
+            
+            // Yükleme sırasında butonu devre dışı bırak ve spinner'ı göster
+            submitButton.disabled = true;
+            loadingSpinner.classList.remove('hidden');
+            
+            const galleryCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'gallery-items');
+            
+            try {
+                await addDoc(galleryCollectionRef, {
+                    title: title,
+                    imageUrl: imageUrl,
+                    prompt: promptText,
+                    authorId: userId, // Yükleyen kullanıcının ID'si
+                    createdAt: serverTimestamp()
+                });
+                
+                // Formu temizle ve başarılı mesajı göster
+                uploadForm.reset();
+                showMessage("Başarılı", "Prompt başarıyla galeriye eklendi!", "info");
+                
+            } catch (e) {
+                console.error("Belge eklenirken hata oluştu: ", e);
+                showMessage("Hata", "Prompt eklenirken bir hata oluştu.", "error");
+            } finally {
+                 // Butonu tekrar etkinleştir ve spinner'ı gizle
+                submitButton.disabled = false;
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        // --- Galeri Yükleme ve Dinleme İşlemleri ---
+        
+        function createGalleryItem(item) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'gallery-item card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer relative';
+            itemDiv.setAttribute('data-id', item.id);
+            itemDiv.setAttribute('role', 'button');
+            itemDiv.tabIndex = 0; // Erişilebilirlik için
+
+            const date = item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('tr-TR') : 'Tarih Yok';
+
+            itemDiv.innerHTML = `
+                <img src="${item.imageUrl}" alt="${item.title}" class="w-full h-auto object-cover transition-transform duration-300 hover:scale-[1.03]"
+                     onerror="this.onerror=null; this.src='https://placehold.co/400x500/e5e7eb/7f1d1d?text=Görsel+Bulunamadı';"
+                >
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-4 flex flex-col justify-end">
+                    <h3 class="text-xl font-bold text-white mb-1">${item.title}</h3>
+                    <p class="text-xs text-gray-300">${date}</p>
+                    <p class="text-sm font-semibold text-purple-200 mt-2">Promptu görmek için tıklayın</p>
+                </div>
+            `;
+            
+            // Tıklama olayını ekle
+            itemDiv.addEventListener('click', () => {
+                showModal(item.title, item.prompt, item.imageUrl);
+            });
+
+            return itemDiv;
+        }
+
+        function loadGallery() {
+            if (!db) return;
+            
+            const galleryCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'gallery-items');
+            const q = query(galleryCollectionRef); // Firestore kısıtlamaları nedeniyle orderBy kullanmıyoruz
+
+            // Veritabanı değişikliklerini dinle
+            onSnapshot(q, (snapshot) => {
+                galleryContainer.innerHTML = ''; // Mevcut içeriği temizle
+                let items = [];
+
+                snapshot.forEach((doc) => {
+                    items.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Verileri istemci tarafında tarihe göre sırala (en yeniyi üste almak için)
+                items.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                if (items.length === 0) {
+                    emptyMessage.classList.remove('hidden');
+                } else {
+                    emptyMessage.classList.add('hidden');
+                    // Masonry düzeni için yer tutucuyu geri ekle
+                    const gallerySizer = document.querySelector('.gallery-sizer');
+                    if(gallerySizer) galleryContainer.appendChild(gallerySizer);
+
+                    items.forEach(item => {
+                        galleryContainer.appendChild(createGalleryItem(item));
+                    });
+                }
+            }, (error) => {
+                console.error("Galeri dinlenirken hata oluştu:", error);
+                showMessage("Hata", "Galeri yüklenirken bir sorun oluştu.", "error");
+            });
+        }
+
+    </script>
 </body>
 </html>
