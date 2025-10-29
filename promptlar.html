@@ -1,220 +1,41 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Yapan Zeka Prompt Galerisi</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barış TÜFEKÇİ - Prompt Galeri</title>
 <style>
-body {
-  background-color: #0d0d0d;
-  color: #f5f5f5;
-  font-family: "Poppins", sans-serif;
-  margin: 0;
-  padding: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 25px;
-}
+    * {margin:0;padding:0;box-sizing:border-box;}
+    body {
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+        background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+        min-height:100vh;
+        padding:15px;
+    }
+    .container {max-width:1400px;margin:0 auto;}
 
-.card {
-  position: relative;
-  width: 260px; /* GENİŞLİK SABİT */
-  height: 260px; /* YÜKSEKLİK SABİT */
-  perspective: 1000px;
-  cursor: pointer;
-}
+    /* Header */
+    .header {
+        background:white;border-radius:15px;padding:20px;margin-bottom:20px;
+        box-shadow:0 10px 40px rgba(0,0,0,0.1);
+    }
+    .header-content {display:flex;align-items:center;gap:15px;margin-bottom:15px;}
+    .profile-pic {
+        width:60px;height:60px;flex-shrink:0;border-radius:50%;border:3px solid #667eea;
+        background:url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg') center/cover no-repeat;
+    }
+    .header-text h1 {font-size:20px;color:#2d3748;margin-bottom:3px;line-height:1.3;}
+    .header-text p {color:#718096;font-size:13px;}
+    .instagram-link {
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+        color:white;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:600;font-size:14px;
+        transition:transform .3s;
+    }
+    .instagram-link:hover {transform:scale(1.05);}
 
-/* Kartın dönmesini sağlayan ana kapsayıcı */
-.card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
-}
-
-/* Hover/Aktif Durumda Dönme */
-.card:hover .card-inner,
-.card.flipped .card-inner {
-  transform: rotateY(180deg);
-}
-
-.card-front,
-.card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden; /* Kartın arka yüzünün ön yüzdeyken görünmemesi */
-  border-radius: 16px;
-}
-
-/* Ön Yüz (Resim ve Metin) Stili */
-.card-front {
-  position: relative;
-}
-
-.card-front img {
-  width: 100%;
-  height: 100%;
-  border-radius: 16px;
-  object-fit: cover;
-}
-
-/* Ön Yüzdeki Metin Katmanı (Overlay) */
-.prompt-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4); /* Yarı saydam arka plan */
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: bold;
-  opacity: 1; /* Metin her zaman görünür */
-  transition: opacity 0.3s;
-  padding: 10px;
-  text-align: center;
-}
-
-
-/* Prompt (Arka Yüz) Stili */
-.card-back {
-  background: rgba(0, 0, 0, 0.95);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  font-size: 14px;
-  transform: rotateY(180deg); /* Arka yüzü başlangıçta döndürülmüş halde gizler */
-  backdrop-filter: blur(4px);
-}
-
-.prompt-text {
-  overflow-y: auto;
-  text-align: center;
-  flex-grow: 1;
-  margin-bottom: 10px;
-}
-
-.copy-button {
-  background: #00c853;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-  flex-shrink: 0;
-}
-
-.copy-button:hover {
-  background: #00a044;
-}
-
-.toast {
-  position: fixed;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #00c853;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-  z-index: 9999;
-}
-
-.toast.show {
-  opacity: 1;
-}
-</style>
-</head>
-
-<body>
-
-<div class="card" onclick="flipCard(this)">
-  <div class="card-inner">
-    <div class="card-front">
-      <img src="https://yapanzeka.sirv.com/wix/galeri1.jpg" alt="Prompt 1">
-      <div class="prompt-overlay">Promptu görmek için tıkla</div>
-    </div>
-    <div class="card-back">
-      <div class="prompt-text">Gözün içinde evren dönerken, ışık yıldızlarla dans eder.</div>
-      <button class="copy-button" onclick="copyPrompt(event, this)">Prompt Kopyala</button>
-    </div>
-  </div>
-</div>
-
-<div class="card" onclick="flipCard(this)">
-  <div class="card-inner">
-    <div class="card-front">
-      <img src="https://yapanzeka.sirv.com/wix/galeri2.jpg" alt="Prompt 2">
-      <div class="prompt-overlay">Promptu görmek için tıkla</div>
-    </div>
-    <div class="card-back">
-      <div class="prompt-text">Galaksilerin gözü, umut ve hayal arasında titreşiyor.</div>
-      <button class="copy-button" onclick="copyPrompt(event, this)">Prompt Kopyala</button>
-    </div>
-  </div>
-</div>
-
-<div class="card" onclick="flipCard(this)">
-  <div class="card-inner">
-    <div class="card-front">
-      <img src="https://yapanzeka.sirv.com/wix/galeri3.jpg" alt="Prompt 3">
-      <div class="prompt-overlay">Promptu görmek için tıkla</div>
-    </div>
-    <div class="card-back">
-      <div class="prompt-text">Işığın kalbinde, su altındaki sessizlik yankılanıyor.</div>
-      <button class="copy-button" onclick="copyPrompt(event, this)">Prompt Kopyala</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast">Prompt kopyalandı!</div>
-
-<script>
-// Kartı çevirme fonksiyonu
-function flipCard(cardElement) {
-  cardElement.classList.toggle('flipped'); // 'flipped' class'ını ekler/kaldırır
-}
-
-// Prompt kopyalama fonksiyonu
-function copyPrompt(event, button) {
-  event.stopPropagation(); // Olayın üst elementlere (kartın kendisine) yayılmasını engeller
-  const text = button.parentNode.querySelector(".prompt-text").innerText;
-
-  // Clipboard kopyalama
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(showToast);
-  } else {
-    const tempInput = document.createElement("textarea");
-    tempInput.value = text;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempInput);
-    showToast();
-  }
-}
-
-function showToast() {
-  const toast = document.getElementById("toast");
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 1500);
-}
-</script>
-
-</body>
-</html>
+    /* Admin button */
+    .admin-btn {
+        position:fixed;bottom:20px;right:20px;width:50px;height:50px;background:#667eea;border-radius:50%;
+        border:none;color:white;font-size:20px;cursor:pointer;box-shadow:0 5px 20px rgba(102,126,234,0.4);
+        transition:all .3s;z-index:1
