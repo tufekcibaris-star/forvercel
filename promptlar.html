@@ -104,4 +104,26 @@
       ta.value = t; document.body.appendChild(ta); ta.select();
       document.execCommand('copy'); document.body.removeChild(ta);
       const o = b.innerHTML; b.innerHTML = 'Kopyalandı!'; b.classList.add('success');
-      setTimeout(() => { b
+      setTimeout(() => { b.innerHTML = o; b.classList.remove('success'); }, 2000);
+    }
+
+    window.del = (id, e) => { e.stopPropagation(); if (loggedIn && confirm('Sil?')) db.collection('promptCards').doc(id).delete(); };
+    window.openAdmin = () => { document.getElementById('adminModal').style.display = 'flex'; };
+    window.closeAdmin = () => { document.getElementById('adminModal').style.display = 'none'; };
+
+    window.addPrompt = () => {
+      const p = document.getElementById('adminPass').value;
+      const i = document.getElementById('imgUrl').value;
+      const t = document.getElementById('promptText').value;
+      if (p !== 'demo123') return alert('Yanlış şifre!');
+      if (!i || !t) return alert('Doldur!');
+      db.collection('promptCards').add({ image: i, prompt: t, date: firebase.firestore.FieldValue.serverTimestamp() })
+        .then(() => { closeAdmin(); document.getElementById('imgUrl').value = document.getElementById('promptText').value = ''; })
+        .catch(() => alert('Hata!'));
+    };
+
+    document.getElementById('adminModal').onclick = e => { if (e.target.id === 'adminModal') closeAdmin(); };
+    document.addEventListener('keydown', e => e.key === 'Escape' && closeAdmin());
+  </script>
+</body>
+</html>
