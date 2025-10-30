@@ -278,6 +278,8 @@
             font-size: 14px;
             font-weight: 600;
             flex: 1;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .copy-icon {
@@ -554,12 +556,20 @@
         // Admin password
         const ADMIN_PASSWORD = 'demo123';
         let isLoggedIn = false;
+        let promptsCache = {};
 
         // Check admin status
         function checkAdminStatus() {
             if (sessionStorage.getItem('adminLoggedIn') === 'true') {
                 isLoggedIn = true;
             }
+        }
+
+        // Escape HTML for data attribute
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/"/g, '&quot;');
         }
 
         // Show toast notification
@@ -615,9 +625,8 @@
                     <div class="card" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('${card.image}')">
                         ${isLoggedIn ? `<button class="delete-btn" onclick="deleteCard(event, '${card.id}')">×</button>` : ''}
                         <div class="card-overlay">
-                            <div class="copy-action" onclick="copyPrompt(event, '${card.id}')">
+                            <div class="copy-action" onclick="copyPrompt(event, '${card.id}')" data-prompt="${escapeHtml(card.prompt)}">
                                 <div class="copy-text">
-                                    <span>👈</span>
                                     <span>Promptu kopyalamak için tıkla</span>
                                 </div>
                                 <div class="copy-icon">📋</div>
@@ -639,22 +648,33 @@
             `;
         }
 
-        // Store prompts in memory
-        let promptsCache = {};
-
-        // Copy prompt
+        // Copy prompt - Enhanced for mobile
         function copyPrompt(event, cardId) {
             event.stopPropagation();
+            event.preventDefault();
             
-            const prompt = promptsCache[cardId];
+            // Get prompt from cache or data attribute (fallback)
+            let prompt = promptsCache[cardId];
+            
+            if (!prompt) {
+                const btn = event.currentTarget;
+                prompt = btn.getAttribute('data-prompt');
+                if (prompt) {
+                    // Decode HTML entities
+                    const textarea = document.createElement('textarea');
+                    textarea.innerHTML = prompt;
+                    prompt = textarea.value;
+                }
+            }
             
             if (!prompt) {
                 showToast('❌ Prompt bulunamadı!');
                 return;
             }
             
-            // Try multiple clipboard methods for better compatibility
-            if (navigator.clipboard && navigator.clipboard.writeText) {
+            // Mobile-friendly copy methods
+            if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+                // Modern Clipboard API
                 navigator.clipboard.writeText(prompt).then(function() {
                     copySuccess(event);
                 }).catch(function(err) {
@@ -662,22 +682,50 @@
                     fallbackCopy(prompt, event);
                 });
             } else {
+                // Fallback for older browsers and mobile
                 fallbackCopy(prompt, event);
             }
         }
 
-        // Fallback copy method
+        // Fallback copy method - Mobile optimized
         function fallbackCopy(text, event) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
             textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
+            textarea.style.top = '0';
+            textarea.style.left = '0';
+            textarea.style.width = '2em';
+            textarea.style.height = '2em';
+            textarea.style.padding = '0';
+            textarea.style.border = 'none';
+            textarea.style.outline = 'none';
+            textarea.style.boxShadow = 'none';
+            textarea.style.background = 'transparent';
+            textarea.setAttribute('readonly', '');
+            textarea.style.fontSize = '12pt'; // Prevent zoom on iOS
+            
             document.body.appendChild(textarea);
-            textarea.select();
+            
+            // iOS Safari requires different approach
+            if (navigator.userAgent.match(/ipad|iphone/i)) {
+                const range = document.createRange();
+                range.selectNodeContents(textarea);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                textarea.setSelectionRange(0, 999999);
+            } else {
+                textarea.focus();
+                textarea.select();
+            }
             
             try {
-                document.execCommand('copy');
-                copySuccess(event);
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    copySuccess(event);
+                } else {
+                    showToast('❌ Kopyalama başarısız!');
+                }
             } catch (err) {
                 console.error('Fallback copy failed:', err);
                 showToast('❌ Kopyalama başarısız!');
