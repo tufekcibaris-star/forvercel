@@ -32,12 +32,13 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        .header-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+     .header-content {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 0;
+}
 
         .profile-pic {
             width: 60px;
@@ -63,21 +64,26 @@
             color: #718096;
             font-size: 13px;
         }
+        .header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
 
-        .instagram-link {
+    .instagram-link {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
     color: white;
-    padding: 8px 15px;
+    padding: 8px 12px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     transition: transform 0.3s;
-    margin-left: auto;
+    white-space: nowrap;
 }
 
         .instagram-link:hover {
@@ -421,11 +427,12 @@
                 padding: 15px;
             }
 
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 10px;
-            }
+           .header-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 10px;
+    justify-items: center;
+}
 
             .header-text h1 {
                 font-size: 18px;
@@ -440,10 +447,11 @@
                 height: 70px;
             }
 
-            .instagram-link {
-                width: 100%;
-                padding: 12px;
-            }
+       .instagram-link {
+    width: auto;
+    padding: 10px 15px;
+    font-size: 13px;
+}
 
             .card {
                 height: 280px;
@@ -872,4 +880,5 @@
     </script>
 </body>
 </html>
+
 
