@@ -1,129 +1,716 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prompt Galeri</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:linear-gradient(135deg,#667eea,#764ba2);font-family:system-ui,sans-serif;color:white;padding:20px;min-height:100vh}
-    .header{background:white;border-radius:15px;padding:20px;margin-bottom:20px;box-shadow:0 15px 40px rgba(0,0,0,0.2);color:#333}
-    .header h2{font-size:22px;margin:0}
-    .header p{font-size:14px;color:#666}
-    .instagram{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743);color:white;padding:12px 20px;border-radius:30px;text-decoration:none;font-weight:600;display:inline-flex;gap:8px}
-    #gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px}
-    .card{position:relative;width:100%;aspect-ratio:9/16;perspective:1000px}
-    .card-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d;cursor:pointer}
-    .card.flipped .card-inner{transform:rotateY(180deg)}
-    .card-front,.card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:15px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
-    .card-front{background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;position:relative}
-    .card-front::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background-size:cover;background-position:center;z-index:-1;border-radius:15px}
-    .card-front[data-img]::before{background-image:url(attr(data-img))}
-    .card-title{position:absolute;top:10px;right:9px;background:rgba(0,0,0,0.6);color:white;padding:8px 12px;border-radius:20px;font-size:13px;font-weight:600}
-    .card-back{background:linear-gradient(135deg,#667eea,#764ba2);transform:rotateY(180deg);padding:20px;display:flex;flex-direction:column;justify-content:space-between}
-    .prompt-text{flex:1;overflow:auto;font-size:13px;line-height:1.5;margin-bottom:15px}
-    .copy-btn{background:white;color:#667eea;padding:12px;border:none;border-radius:10px;font-weight:600;cursor:pointer}
-    .copy-btn:hover{transform:scale(1.05)}
-    .copy-btn.success{background:#4ade80;color:white}
-    .del-btn{position:absolute;top:8px;right:8px;background:#ef4444;color:white;width:28px;height:28px;border-radius:50%;border:none;font-size:16px;cursor:pointer;display:none;z-index:10}
-    .card:hover .del-btn{display:block}
-    #fab{position:fixed;bottom:25px;right:25px;width:55px;height:55px;background:#667eea;border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer;box-shadow:0 8px 25px rgba(102,126,234,0.4);z-index:100}
-    @media(max-width:768px){.card{height:250px}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barış TÜFEKÇİ - Prompt Galeri</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            border: 3px solid #667eea;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg');
+            background-color: #667eea;
+        }
+
+        .header-text h1 {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        .header-text p {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .instagram-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.3s;
+        }
+
+        .instagram-link:hover {
+            transform: scale(1.05);
+        }
+
+        /* Admin Button */
+        .admin-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #667eea;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+            z-index: 100;
+            display: block;
+        }
+
+        .admin-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        /* Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .gallery {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+        }
+
+        /* Card */
+        .card {
+            perspective: 1000px;
+            height: 400px;
+        }
+        
+        @media (max-width: 767px) {
+            .card {
+                height: 350px;
+            }
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .card-title {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            z-index: 1;
+            text-shadow: none;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: rotateY(180deg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .prompt-text {
+            color: white;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-y: auto;
+            flex: 1;
+            margin-bottom: 15px;
+        }
+
+        .copy-btn {
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+            color: white;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f56565;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+            z-index: 10;
+        }
+
+        .card:hover .delete-btn {
+            display: block;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 767px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .header-text h1 {
+                font-size: 18px;
+            }
+
+            .header-text p {
+                font-size: 12px;
+            }
+
+            .profile-pic {
+                width: 70px;
+                height: 70px;
+            }
+
+            .instagram-link {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .card {
+                height: 280px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .modal-content h2 {
+                font-size: 18px;
+            }
+
+            .admin-btn {
+                bottom: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <div class="header">
-    <div style="display:flex;align-items:center;gap:15px;margin-bottom:15px;flex-wrap:wrap;">
-      <div style="width:60px;height:60px;border-radius:50%;border:3px solid #667eea;background:url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg') center/cover;"></div>
-      <div>
-        <h2>Barış TÜFEKÇİ</h2>
-        <p>Prompt Galeri</p>
-      </div>
-    </div>
-    <a href="https://instagram.com/yapanzeka_" target="_blank" class="instagram">@yapanzeka_</a>
-  </div>
-
-  <div id="gallery">Yükleniyor...</div>
-  <button id="fab" onclick="openAdmin()">+</button>
-
-  <div id="adminModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;justify-content:center;align-items:center;padding:20px;">
-    <div style="background:white;border-radius:20px;padding:25px;max-width:90%;max-height:90%;overflow:auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <h3 style="margin:0;color:#333;">Admin</h3>
-        <button onclick="closeAdmin()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#666;">×</button>
-      </div>
-      <input type="password" id="adminPass" placeholder="Şifre" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:15px;">
-      <input type="url" id="imgUrl" placeholder="Görsel URL" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:15px;">
-      <textarea id="promptText" placeholder="Prompt..." style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;min-height:100px;margin-bottom:15px;resize:vertical;"></textarea>
-      <button onclick="addPrompt()" style="width:100%;padding:15px;background:#667eea;color:white;border:none;border-radius:10px;font-weight:600;cursor:pointer;">Kart Ekle</button>
-    </div>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script>
-    firebase.initializeApp({
-      apiKey: "AIzaSyAMwPYFRzG-5hTiumoyTVoOdTb7clcUazY",
-      authDomain: "promptlar-db562.firebaseapp.com",
-      projectId: "promptlar-db562",
-      storageBucket: "promptlar-db562.firebasestorage.app",
-      messagingSenderId: "409868683471",
-      appId: "1:409868683471:web:797fe225e588546c1c8fba"
-    });
-    const db = firebase.firestore();
-    let loggedIn = sessionStorage.getItem('admin') === 'true';
-
-    db.collection('promptCards').orderBy('date', 'desc').onSnapshot(s => {
-      const cards = [];
-      s.forEach(d => cards.push({ ...d.data(), id: d.id }));
-      document.getElementById('gallery').innerHTML = cards.map((c, i) => `
-        <div class="card">
-          ${loggedIn ? `<button class="del-btn" onclick="del('${c.id}',event)">×</button>` : ''}
-          <div class="card-inner">
-            <div class="card-front" data-img="${c.image}">
-              <div class="card-title">Tıkla!</div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="profile-pic"></div>
+                <div class="header-text">
+                    <h1>Barış TÜFEKÇİ - Prompt Galeri</h1>
+                    <p>Kişisel Yapay Zeka Projeleri</p>
+                </div>
             </div>
-            <div class="card-back">
-              <div class="prompt-text">${c.prompt}</div>
-              <button class="copy-btn" onclick="copy('${c.prompt.replace(/'/g, "\\'")}',this,event)">Kopyala</button>
-            </div>
-          </div>
+            <a href="https://instagram.com/yapanzeka_" target="_blank" class="instagram-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+                @yapanzeka_
+            </a>
         </div>
-      `).join('') || '<div style="grid-column:1/-1;text-align:center;padding:60px"><h3>Henüz kart yok</h3></div>';
-      
-      document.getElementById('gallery').onclick = e => {
-        if (e.target.closest('.copy-btn') || e.target.closest('.del-btn')) return;
-        e.target.closest('.card')?.classList.toggle('flipped');
-      };
-    });
 
-    function copy(t, b, e) {
-      e.stopPropagation();
-      const ta = document.createElement('textarea');
-      ta.value = t; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      const o = b.innerHTML; b.innerHTML = 'Kopyalandı!'; b.classList.add('success');
-      setTimeout(() => { b.innerHTML = o; b.classList.remove('success'); }, 2000);
-    }
+        <!-- Gallery -->
+        <div class="gallery" id="gallery">
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <h3>Yükleniyor...</h3>
+                <p>Kartlar Firebase'den alınıyor</p>
+            </div>
+        </div>
+    </div>
 
-    window.del = (id, e) => { e.stopPropagation(); if (loggedIn && confirm('Sil?')) db.collection('promptCards').doc(id).delete(); };
-    window.openAdmin = () => { document.getElementById('adminModal').style.display = 'flex'; };
-    window.closeAdmin = () => { document.getElementById('adminModal').style.display = 'none'; };
+    <!-- Admin Button -->
+    <button class="admin-btn" id="adminBtn" onclick="openAddModal()">⚙️</button>
 
-    window.addPrompt = () => {
-      const p = document.getElementById('adminPass').value;
-      const i = document.getElementById('imgUrl').value;
-      const t = document.getElementById('promptText').value;
-      if (p !== 'demo123') return alert('Yanlış şifre!');
-      if (!i || !t) return alert('Doldur!');
-      db.collection('promptCards').add({ image: i, prompt: t, date: firebase.firestore.FieldValue.serverTimestamp() })
-        .then(() => { closeAdmin(); document.getElementById('imgUrl').value = document.getElementById('promptText').value = ''; })
-        .catch(() => alert('Hata!'));
-    };
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>Yönetici Girişi</h2>
+            <div class="form-group">
+                <label>Şifre</label>
+                <input type="password" id="passwordInput" placeholder="Şifrenizi girin">
+            </div>
+            <button class="btn btn-primary" onclick="login()">Giriş Yap</button>
+            <button class="btn btn-secondary" onclick="closeModal('loginModal')">İptal</button>
+        </div>
+    </div>
 
-    document.getElementById('adminModal').onclick = e => { if (e.target.id === 'adminModal') closeAdmin(); };
-    document.addEventListener('keydown', e => e.key === 'Escape' && closeAdmin());
-  </script>
+    <!-- Add Card Modal -->
+    <div class="modal" id="addCardModal">
+        <div class="modal-content">
+            <h2>Yeni Kart Ekle</h2>
+            <div class="form-group">
+                <label>Görsel URL</label>
+                <input type="text" id="imageUrl" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Prompt</label>
+                <textarea id="promptText" placeholder="Yapay zeka promptunu buraya yazın..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="addCard()">Ekle</button>
+            <button class="btn btn-secondary" onclick="closeModal('addCardModal')">İptal</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMwPYFRzG-5hTiumoyTVoOdTb7clcUazY",
+            authDomain: "promptlar-db562.firebaseapp.com",
+            projectId: "promptlar-db562",
+            storageBucket: "promptlar-db562.firebasestorage.app",
+            messagingSenderId: "409868683471",
+            appId: "1:409868683471:web:797fe225e588546c1c8fba",
+            measurementId: "G-RC6G04DM0N"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Admin password
+        const ADMIN_PASSWORD = 'demo123';
+        let isLoggedIn = false;
+
+        // Check admin status
+        function checkAdminStatus() {
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+                isLoggedIn = true;
+            }
+        }
+
+        // Load cards with real-time updates
+        function loadCards() {
+            const q = query(collection(db, 'promptCards'), orderBy('date', 'desc'));
+            
+            onSnapshot(q, (snapshot) => {
+                const cards = [];
+                snapshot.forEach((doc) => {
+                    cards.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                renderGallery(cards);
+            }, (error) => {
+                console.error('Error loading cards:', error);
+                renderError();
+            });
+        }
+
+        // Render gallery
+        function renderGallery(cards) {
+            const gallery = document.getElementById('gallery');
+            
+            if (cards.length === 0) {
+                gallery.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Henüz kart eklenmemiş</h3>
+                        <p>İlk promptları görmek için bekleyin</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gallery.innerHTML = cards.map((card, index) => `
+                <div class="card" onclick="flipCard(event)">
+                    ${isLoggedIn ? `<button class="delete-btn" onclick="deleteCard(event, '${card.id}')">×</button>` : ''}
+                    <div class="card-inner">
+                        <div class="card-front" style="background-image: url('${card.image}')">
+                            <div class="card-title">👆 Promptu görmek için tıkla</div>
+                        </div>
+                        <div class="card-back">
+                            <div class="prompt-text">${card.prompt}</div>
+                            <button class="copy-btn" onclick="copyPrompt(event, \`${card.prompt.replace(/`/g, '\\`')}\`)">📋 Kopyala</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render error
+        function renderError() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = `
+                <div class="empty-state">
+                    <h3>Bağlantı hatası</h3>
+                    <p>Firebase'e bağlanırken bir sorun oluştu</p>
+                </div>
+            `;
+        }
+
+        // Flip card
+        window.flipCard = function(event) {
+            if (event.target.classList.contains('delete-btn') || 
+                event.target.classList.contains('copy-btn')) {
+                return;
+            }
+            event.currentTarget.classList.toggle('flipped');
+        };
+
+        // Copy prompt
+        window.copyPrompt = function(event, prompt) {
+            event.stopPropagation();
+            navigator.clipboard.writeText(prompt).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✓ Kopyalandı!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        };
+
+        // Delete card
+        window.deleteCard = async function(event, cardId) {
+            event.stopPropagation();
+            if (!isLoggedIn) return;
+            
+            if (confirm('Bu kartı silmek istediğinizden emin misiniz?')) {
+                try {
+                    await deleteDoc(doc(db, 'promptCards', cardId));
+                } catch (error) {
+                    console.error('Error deleting card:', error);
+                    alert('Kart silinirken bir hata oluştu!');
+                }
+            }
+        };
+
+        // Open add modal
+        window.openAddModal = function() {
+            if (!isLoggedIn) {
+                document.getElementById('loginModal').classList.add('active');
+            } else {
+                document.getElementById('addCardModal').classList.add('active');
+            }
+        };
+
+        // Close modal
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            if (modalId === 'addCardModal') {
+                document.getElementById('imageUrl').value = '';
+                document.getElementById('promptText').value = '';
+            }
+            if (modalId === 'loginModal') {
+                document.getElementById('passwordInput').value = '';
+            }
+        };
+
+        // Login
+        window.login = function() {
+            const password = document.getElementById('passwordInput').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                closeModal('loginModal');
+                document.getElementById('addCardModal').classList.add('active');
+                loadCards(); // Refresh to show delete buttons
+            } else {
+                alert('Hatalı şifre!');
+            }
+        };
+
+        // Add card
+        window.addCard = async function() {
+            if (!isLoggedIn) return;
+            
+            const imageUrl = document.getElementById('imageUrl').value.trim();
+            const promptText = document.getElementById('promptText').value.trim();
+
+            if (!imageUrl || !promptText) {
+                alert('Lütfen tüm alanları doldurun!');
+                return;
+            }
+
+            const title = promptText.substring(0, 50) + (promptText.length > 50 ? '...' : '');
+
+            try {
+                await addDoc(collection(db, 'promptCards'), {
+                    image: imageUrl,
+                    prompt: promptText,
+                    title: title,
+                    date: new Date().toISOString()
+                });
+                
+                closeModal('addCardModal');
+            } catch (error) {
+                console.error('Error adding card:', error);
+                alert('Kart eklenirken bir hata oluştu!');
+            }
+        };
+
+        // Close modals on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal('loginModal');
+                closeModal('addCardModal');
+            }
+        });
+
+        // Close modals on Enter in password field
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        // Close modals on background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize
+        checkAdminStatus();
+        loadCards();
+    </script>
 </body>
 </html>
