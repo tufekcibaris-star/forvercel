@@ -1,77 +1,107 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barış TÜFEKÇİ - Prompt Galeri</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prompt Galeri</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:linear-gradient(135deg,#667eea,#764ba2);font-family:system-ui,sans-serif;color:white;padding:20px;min-height:100vh}
+    .header{background:white;border-radius:15px;padding:20px;margin-bottom:20px;box-shadow:0 15px 40px rgba(0,0,0,0.2);color:#333}
+    .header h2{font-size:22px;margin:0}
+    .header p{font-size:14px;color:#666}
+    .instagram{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743);color:white;padding:12px 20px;border-radius:30px;text-decoration:none;font-weight:600;display:inline-flex;gap:8px}
+    #gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px}
+    .card{position:relative;width:100%;aspect-ratio:9/16;perspective:1000px}
+    .card-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d;cursor:pointer}
+    .card.flipped .card-inner{transform:rotateY(180deg)}
+    .card-front,.card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:15px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+    .card-front{background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;position:relative}
+    .card-front::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background-size:cover;background-position:center;z-index:-1;border-radius:15px}
+    .card-front[data-img]::before{background-image:url(attr(data-img))}
+    .card-title{position:absolute;top:10px;right:9px;background:rgba(0,0,0,0.6);color:white;padding:8px 12px;border-radius:20px;font-size:13px;font-weight:600}
+    .card-back{background:linear-gradient(135deg,#667eea,#764ba2);transform:rotateY(180deg);padding:20px;display:flex;flex-direction:column;justify-content:space-between}
+    .prompt-text{flex:1;overflow:auto;font-size:13px;line-height:1.5;margin-bottom:15px}
+    .copy-btn{background:white;color:#667eea;padding:12px;border:none;border-radius:10px;font-weight:600;cursor:pointer}
+    .copy-btn:hover{transform:scale(1.05)}
+    .copy-btn.success{background:#4ade80;color:white}
+    .del-btn{position:absolute;top:8px;right:8px;background:#ef4444;color:white;width:28px;height:28px;border-radius:50%;border:none;font-size:16px;cursor:pointer;display:none;z-index:10}
+    .card:hover .del-btn{display:block}
+    #fab{position:fixed;bottom:25px;right:25px;width:55px;height:55px;background:#667eea;border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer;box-shadow:0 8px 25px rgba(102,126,234,0.4);z-index:100}
+    @media(max-width:768px){.card{height:250px}}
+  </style>
+</head>
+<body>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 15px;
-        }
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:15px;margin-bottom:15px;flex-wrap:wrap;">
+      <div style="width:60px;height:60px;border-radius:50%;border:3px solid #667eea;background:url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg') center/cover;"></div>
+      <div>
+        <h2>Barış TÜFEKÇİ</h2>
+        <p>Prompt Galeri</p>
+      </div>
+    </div>
+    <a href="https://instagram.com/yapanzeka_" target="_blank" class="instagram">@yapanzeka_</a>
+  </div>
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+  <div id="gallery">Yükleniyor...</div>
+  <button id="fab" onclick="openAdmin()">+</button>
 
-        /* Header */
-        .header {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
+  <div id="adminModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;justify-content:center;align-items:center;padding:20px;">
+    <div style="background:white;border-radius:20px;padding:25px;max-width:90%;max-height:90%;overflow:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="margin:0;color:#333;">Admin</h3>
+        <button onclick="closeAdmin()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#666;">×</button>
+      </div>
+      <input type="password" id="adminPass" placeholder="Şifre" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:15px;">
+      <input type="url" id="imgUrl" placeholder="Görsel URL" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:15px;">
+      <textarea id="promptText" placeholder="Prompt..." style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;min-height:100px;margin-bottom:15px;resize:vertical;"></textarea>
+      <button onclick="addPrompt()" style="width:100%;padding:15px;background:#667eea;color:white;border:none;border-radius:10px;font-weight:600;cursor:pointer;">Kart Ekle</button>
+    </div>
+  </div>
 
-        .header-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyAMwPYFRzG-5hTiumoyTVoOdTb7clcUazY",
+      authDomain: "promptlar-db562.firebaseapp.com",
+      projectId: "promptlar-db562",
+      storageBucket: "promptlar-db562.firebasestorage.app",
+      messagingSenderId: "409868683471",
+      appId: "1:409868683471:web:797fe225e588546c1c8fba"
+    });
+    const db = firebase.firestore();
+    let loggedIn = sessionStorage.getItem('admin') === 'true';
 
-        .profile-pic {
-            width: 60px;
-            height: 60px;
-            flex-shrink: 0;
-            border-radius: 50%;
-            border: 3px solid #667eea;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-image: url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg');
-            background-color: #667eea;
-        }
+    db.collection('promptCards').orderBy('date', 'desc').onSnapshot(s => {
+      const cards = [];
+      s.forEach(d => cards.push({ ...d.data(), id: d.id }));
+      document.getElementById('gallery').innerHTML = cards.map((c, i) => `
+        <div class="card">
+          ${loggedIn ? `<button class="del-btn" onclick="del('${c.id}',event)">×</button>` : ''}
+          <div class="card-inner">
+            <div class="card-front" data-img="${c.image}">
+              <div class="card-title">Tıkla!</div>
+            </div>
+            <div class="card-back">
+              <div class="prompt-text">${c.prompt}</div>
+              <button class="copy-btn" onclick="copy('${c.prompt.replace(/'/g, "\\'")}',this,event)">Kopyala</button>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div style="grid-column:1/-1;text-align:center;padding:60px"><h3>Henüz kart yok</h3></div>';
+      
+      document.getElementById('gallery').onclick = e => {
+        if (e.target.closest('.copy-btn') || e.target.closest('.del-btn')) return;
+        e.target.closest('.card')?.classList.toggle('flipped');
+      };
+    });
 
-        .header-text h1 {
-            font-size: 20px;
-            color: #2d3748;
-            margin-bottom: 3px;
-            line-height: 1.3;
-        }
-
-        .header-text p {
-            color: #718096;
-            font-size: 13px;
-        }
-
-        .instagram-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600
+    function copy(t, b, e) {
+      e.stopPropagation();
+      const ta = document.createElement('textarea');
+      ta.value = t; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      const o = b.innerHTML; b.innerHTML = 'Kopyalandı!'; b.classList.add('success');
+      setTimeout(() => { b
