@@ -3,634 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İlham Panosu</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome CDN for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>Barış TÜFEKÇİ - Prompt Galeri</title>
     <style>
-        /* Inter font for a modern look */
-        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
-        .card { transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
-        .gallery-item { break-inside: avoid; margin-bottom: 1rem; }
-        .loading-spinner { border-top-color: #5b21b6; } /* Tailwind purple-700 */
-        .profile-photo {
-            width: 64px; /* Daire boyutu */
-            height: 64px;
-            object-fit: cover;
-            border-radius: 50%; /* Dairesel şekil */
-            border: 3px solid #5b21b6; /* Mor çerçeve */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-</head>
-<body>
-
-    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Başlık ve Yönetici Girişi -->
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b border-gray-200">
-            <!-- Profil Fotoğrafı ve Başlık -->
-            <div class="flex items-center space-x-4">
-                <img id="profile-img" src="https://placehold.co/64x64/ccc/999?text=PT" alt="Profil Fotoğrafı" class="profile-photo" title="Profil Fotoğrafınız">
-                <div>
-                    <h1 class="text-3xl font-extrabold text-gray-900">Barış TÜFEKÇİ - Prompt Galeri</h1>
-                    <p class="mt-1 text-gray-600">İstediğiniz fotoğrafın üstüne tıklayıp promptu kopyalayabilirsiniz</p>
-                </div>
-            </div>
-            
-            <!-- Yönetici Şifresi Giriş Alanı -->
-            <div id="admin-login-area" class="mt-4 md:mt-0 flex flex-col items-end space-y-2">
-                 <div id="admin-status" class="text-sm font-medium text-red-500">Yönetici Değil</div>
-
-                <form id="admin-login-form" class="flex space-x-2">
-                    <input type="password" id="admin-password-input" placeholder="Yönetici Şifresi"
-                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm w-40"
-                           autocomplete="off">
-                    <button type="submit"
-                            class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
-                        Giriş Yap
-                    </button>
-                </form>
-            </div>
-        </header>
-
-        <!-- Yükleme Bölümü (Admin Paneli) -->
-        <section id="upload-section" class="mb-10 p-6 bg-white border border-gray-200 rounded-xl shadow-lg hidden">
-            <h2 class="text-2xl font-bold text-purple-700 mb-4">Yönetici Paneli</h2>
-            
-            <!-- Profil Fotoğrafı Yükleme Bölümü -->
-            <div class="mb-6 p-4 border border-purple-200 bg-purple-50 rounded-lg">
-                <h3 class="text-xl font-semibold text-purple-700 mb-3">Profil Fotoğrafı Güncelle</h3>
-                <form id="profile-upload-form" class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                    <input type="file" id="profile-file-input" accept="image/*" required
-                           class="w-full sm:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
-                    <button type="submit" id="profile-submit-button"
-                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-200 flex-shrink-0">
-                        Fotoğrafı Yükle
-                    </button>
-                    <div id="profile-loading-spinner" class="loading-spinner h-6 w-6 border-4 border-gray-200 border-t-4 rounded-full animate-spin hidden"></div>
-                </form>
-            </div>
-
-
-            <h3 class="text-xl font-semibold text-purple-700 mb-3">Yeni Prompt Ekle</h3>
-            <form id="upload-form" class="space-y-4">
-                <input type="text" id="image-title" placeholder="Başlık (Gerekli)" required
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
-                <input type="url" id="image-url-input" placeholder="Görsel URL (Gerekli)" required
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
-                <textarea id="image-prompt" placeholder="Prompt Metni (Gerekli)" rows="4" required
-                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"></textarea>
-                
-                <div class="flex items-center space-x-3">
-                    <button type="submit" id="submit-button"
-                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-200 flex-shrink-0">
-                        Kaydet
-                    </button>
-                    <div id="loading-spinner" class="loading-spinner h-6 w-6 border-4 border-gray-200 border-t-4 rounded-full animate-spin hidden"></div>
-                </div>
-            </form>
-        </section>
-
-        <!-- Galeri Alanı -->
-        <section id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-masonry='{"itemSelector": ".gallery-item", "columnWidth": ".gallery-sizer", "gutter": 10}'>
-             <div class="gallery-sizer w-full sm:w-1/2 md:w-1/3 lg:w-1/4"></div> <!-- Masonry için yardımcı eleman -->
-             <!-- Galeri ögeleri buraya JavaScript tarafından eklenecek -->
-        </section>
-        
-        <!-- Boş Durum Mesajı -->
-        <p id="empty-message" class="text-center text-gray-500 text-lg mt-12 hidden">Henüz hiç resim eklenmemiş.</p>
-    </main>
-
-    <!-- Modal (Prompt Gösterimi) -->
-    <div id="prompt-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div id="modal-content" class="bg-white rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300 scale-95" role="dialog" aria-modal="true">
-            <div class="flex justify-end p-3">
-                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600" aria-label="Kapat">
-                     <!-- İkon: Kapat -->
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <div class="px-6 pb-6 pt-0 space-y-4">
-                <img id="modal-image" src="" alt="Genişletilmiş Görsel" class="w-full h-auto rounded-lg object-cover mb-4">
-                <h3 id="modal-title" class="text-2xl font-bold text-gray-800"></h3>
-                <p class="text-sm font-medium text-gray-500">Prompt Metni:</p>
-                <div class="relative">
-                    <textarea id="modal-prompt" readonly rows="6" 
-                              class="w-full p-4 border border-gray-200 bg-gray-50 rounded-lg text-gray-700 resize-none font-mono text-sm"></textarea>
-                    
-                    <!-- Kopyala Butonu -->
-                    <button id="copy-prompt-btn" title="Promptu Kopyala"
-                            class="absolute top-2 right-2 p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition duration-200 flex items-center space-x-2">
-                        <!-- İkon: Kopyala -->
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l4-4m0 0l-4-4m4 4H9"></path></svg>
-                        <span class="text-xs font-semibold">Kopyala</span>
-                    </button>
-                </div>
-                <div id="copy-feedback" class="text-sm text-green-600 font-semibold hidden">Kopyalandı!</div>
-
-            </div>
-        </div>
-    </div>
-    
-    <!-- Genel Mesaj Modalı (Hata/Bilgi Mesajları için) -->
-    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[9999] transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all duration-300 scale-95">
-            <h3 id="message-title" class="text-xl font-bold text-gray-800 mb-3"></h3>
-            <p id="message-text" class="text-gray-600 mb-5"></p>
-            <button id="close-message-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
-                Tamam
-            </button>
-        </div>
-    </div>
-
-
-    <script type="module">
-        // Firebase kütüphanelerini içe aktar
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-
-
-        // =========================================================================
-        // NETLIFY'DA GÜVENLİ ŞİFRE KONTROLÜ VE PROFİL FOTOĞRAFI YÜKLEME
-        // =========================================================================
-        
-        let db, auth, storage, userId;
-        const ADMIN_CONFIG_COLLECTION = 'admin';
-        const ADMIN_CONFIG_DOC_ID = 'config';
-        const PROFILE_PHOTO_STORAGE_PATH = 'profile/baris_profile_photo.png'; // Sabit dosya yolu
-
-        // Firebase Yapılandırması
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-gallery-app';
-
-        // Firebase uygulamasını başlat
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            storage = getStorage(app); // Storage servisini başlat
-            setLogLevel('debug'); // Hata ayıklama için
-        } catch (e) {
-            console.error("Firebase başlatılırken hata oluştu:", e);
-            showMessage("Hata", "Uygulama başlatılamadı. Lütfen daha sonra tekrar deneyin.", "error");
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        // --- DOM Elementleri ---
-        let uploadForm, galleryContainer, promptModal, modalPrompt, imageTitleInput, imageUrlInput, promptInput, 
-            modalImage, modalTitle, closeModalBtn, copyPromptBtn, copyFeedback, loadingSpinner, submitButton, uploadSection,
-            adminLoginForm, adminPasswordInput, adminLoginArea, adminStatus, emptyMessage, 
-            messageModal, messageTitle, messageText, closeMessageBtn, profileImg,
-            profileUploadForm, profileFileInput, profileSubmitButton, profileLoadingSpinner;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Galeri ve Yükleme
-            uploadForm = document.getElementById('upload-form');
-            galleryContainer = document.getElementById('gallery-container');
-            imageTitleInput = document.getElementById('image-title');
-            imageUrlInput = document.getElementById('image-url-input');
-            promptInput = document.getElementById('image-prompt');
-            loadingSpinner = document.getElementById('loading-spinner');
-            submitButton = document.getElementById('submit-button');
-            uploadSection = document.getElementById('upload-section');
-            emptyMessage = document.getElementById('empty-message');
-
-            // Başlık
-            profileImg = document.getElementById('profile-img');
-
-            // Modal
-            promptModal = document.getElementById('prompt-modal');
-            modalPrompt = document.getElementById('modal-prompt');
-            modalImage = document.getElementById('modal-image');
-            modalTitle = document.getElementById('modal-title');
-            closeModalBtn = document.getElementById('close-modal-btn');
-            copyPromptBtn = document.getElementById('copy-prompt-btn');
-            copyFeedback = document.getElementById('copy-feedback');
-
-            // Yönetici Girişi
-            adminLoginForm = document.getElementById('admin-login-form');
-            adminPasswordInput = document.getElementById('admin-password-input');
-            adminLoginArea = document.getElementById('admin-login-area');
-            adminStatus = document.getElementById('admin-status');
-            
-            // Profil Yükleme
-            profileUploadForm = document.getElementById('profile-upload-form');
-            profileFileInput = document.getElementById('profile-file-input');
-            profileSubmitButton = document.getElementById('profile-submit-button');
-            profileLoadingSpinner = document.getElementById('profile-loading-spinner');
-
-
-            // Mesaj Modalı
-            messageModal = document.getElementById('message-modal');
-            messageTitle = document.getElementById('message-title');
-            messageText = document.getElementById('message-text');
-            closeMessageBtn = document.getElementById('close-message-btn');
-
-            // Firebase'i başlat ve galeriyi yükle
-            initFirebaseAndLoadGallery();
-
-            // Form gönderim dinleyicisi (Prompt Ekle)
-            if (uploadForm) {
-                uploadForm.addEventListener('submit', handleUpload);
-            }
-
-            // Form gönderim dinleyicisi (Profil Fotoğrafı)
-            if (profileUploadForm) {
-                profileUploadForm.addEventListener('submit', handleProfilePhotoUpload);
-            }
-
-            // Modal kapatma olayları
-            if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', hideModal);
-            }
-            if (promptModal) {
-                promptModal.addEventListener('click', (e) => {
-                    // Modal'ın dışına tıklanırsa kapat
-                    if (e.target === promptModal) {
-                        hideModal();
-                    }
-                });
-            }
-
-            // Prompt kopyalama
-            if (copyPromptBtn) {
-                copyPromptBtn.addEventListener('click', copyPrompt);
-            }
-            
-            // Yönetici Giriş Formu
-            if (adminLoginForm) {
-                adminLoginForm.addEventListener('submit', handleAdminLogin);
-            }
-            
-            // Mesaj Modalı Kapatma
-            if (closeMessageBtn) {
-                closeMessageBtn.addEventListener('click', hideMessage);
-            }
-        });
-
-        // --- Yardımcı Fonksiyonlar ---
-
-        function showMessage(title, text, type = 'info') {
-            messageTitle.textContent = title;
-            messageText.textContent = text;
-            
-            // Mesaj tipine göre renk ayarlaması (isteğe bağlı)
-            if (type === 'error') {
-                 messageTitle.classList.remove('text-gray-800');
-                 messageTitle.classList.add('text-red-600');
-            } else {
-                messageTitle.classList.add('text-gray-800');
-                messageTitle.classList.remove('text-red-600');
-            }
-
-            messageModal.classList.remove('opacity-0', 'pointer-events-none');
-        }
-        
-        function hideMessage() {
-            messageModal.classList.add('opacity-0', 'pointer-events-none');
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
         }
 
-        function showModal(title, prompt, imageUrl) {
-            modalTitle.textContent = title;
-            modalPrompt.value = prompt;
-            modalImage.src = imageUrl;
-            
-            // Görsel yüklenemezse placeholder göster
-            modalImage.onerror = () => {
-                 modalImage.src = 'https://placehold.co/500x300/e5e7eb/7f1d1d?text=Görsel+Bulunamadı';
-            };
-
-            promptModal.classList.remove('opacity-0', 'pointer-events-none');
-            // Modal içeriğini büyüt
-            document.getElementById('modal-content').classList.remove('scale-95');
-            document.getElementById('modal-content').classList.add('scale-100');
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        function hideModal() {
-            document.getElementById('modal-content').classList.remove('scale-100');
-            document.getElementById('modal-content').classList.add('scale-95');
-            // Biraz gecikmeyle kapat
-            setTimeout(() => {
-                promptModal.classList.add('opacity-0', 'pointer-events-none');
-            }, 300);
-            
-            // Kopyalama geri bildirimini sıfırla
-            copyFeedback.classList.add('hidden');
-            copyPromptBtn.classList.remove('bg-green-600');
-            copyPromptBtn.classList.add('bg-purple-500');
-        }
-        
-        function copyPrompt() {
-            // Tarayıcı kısıtlamaları nedeniyle document.execCommand kullanılıyor
-            try {
-                modalPrompt.select();
-                document.execCommand('copy');
-                copyFeedback.textContent = "Prompt başarıyla kopyalandı!";
-                copyFeedback.classList.remove('hidden');
-                copyPromptBtn.classList.remove('bg-purple-500');
-                copyPromptBtn.classList.add('bg-green-600');
-                
-                setTimeout(() => {
-                    copyFeedback.classList.add('hidden');
-                    copyPromptBtn.classList.remove('bg-green-600');
-                    copyPromptBtn.classList.add('bg-purple-500');
-                }, 2000);
-            } catch (err) {
-                console.error('Kopyalama başarısız:', err);
-                copyFeedback.textContent = "Kopyalama başarısız oldu.";
-                copyFeedback.classList.remove('hidden');
-                setTimeout(() => copyFeedback.classList.add('hidden'), 3000);
-            }
-        }
-        
-        // Yönetici şifresini ve fotoğraf URL'sini Firestore'dan alır
-        async function getAdminConfig() {
-            const adminDocRef = doc(db, 'artifacts', appId, 'public', 'data', ADMIN_CONFIG_COLLECTION, ADMIN_CONFIG_DOC_ID);
-            try {
-                const docSnap = await getDoc(adminDocRef);
-                if (docSnap.exists()) {
-                    return docSnap.data();
-                }
-            } catch (error) {
-                console.error("Yönetici yapılandırması alınamadı:", error);
-            }
-            return { password: null, profileUrl: null };
-        }
-        
-        // Yönetici şifresini ve fotoğraf URL'sini Firestore'a kaydeder
-        async function setAdminConfig(data) {
-            const adminDocRef = doc(db, 'artifacts', appId, 'public', 'data', ADMIN_CONFIG_COLLECTION, ADMIN_CONFIG_DOC_ID);
-             try {
-                await setDoc(adminDocRef, { ...data, timestamp: serverTimestamp() }, { merge: true });
-                return true;
-            } catch (error) {
-                console.error("Yönetici yapılandırması kaydedilemedi:", error);
-                showMessage("Hata", "Yönetici ayarları veritabanına kaydedilemedi.", "error");
-                return false;
-            }
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        async function updateProfileImage(url) {
-            profileImg.src = url;
-            profileImg.onerror = () => {
-                profileImg.src = 'https://placehold.co/64x64/ccc/999?text=PT';
-            };
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
-        async function loadProfilePhoto() {
-            const config = await getAdminConfig();
-            if (config.profileUrl) {
-                updateProfileImage(config.profileUrl);
-            }
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            border: 3px solid #667eea;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: url('https://yapanzeka.sirv.com/Images/seyahat/btufekci.jpg');
+            background-color: #667eea;
         }
 
-        async function checkAdminAccess(password) {
-            const config = await getAdminConfig();
-            const storedPassword = config.password;
-            let isAdmin = false;
-
-            if (!storedPassword) {
-                 // 1. Durum: Şifre ilk defa ayarlanıyor
-                 if (password) {
-                     const isSet = await setAdminConfig({ password: password });
-                     if (isSet) {
-                         isAdmin = true;
-                         adminStatus.textContent = "Yönetici (Şifre Ayarlandı)";
-                         showMessage("Başarılı", "Yönetici şifresi ilk kez ayarlandı ve giriş yapıldı.", "info");
-                     }
-                 } else {
-                     adminStatus.textContent = "Yönetici Değil (Şifre Ayarlanmalı)";
-                 }
-
-            } else if (password && password === storedPassword) {
-                // 2. Durum: Giriş başarılı
-                isAdmin = true;
-                adminStatus.textContent = "Yönetici";
-            } else if (password) {
-                // 3. Durum: Şifre yanlış
-                showMessage("Hata", "Yanlış yönetici şifresi.", "error");
-                adminStatus.textContent = "Yönetici Değil (Yanlış Şifre)";
-            } else {
-                // 4. Durum: Şifre girilmedi ama şifre ayarlı
-                adminStatus.textContent = "Yönetici Değil";
-            }
-            
-            // UI Güncelleme
-            if (isAdmin) {
-                adminStatus.classList.remove('text-red-500');
-                adminStatus.classList.add('text-green-600');
-                uploadSection.classList.remove('hidden');
-            } else {
-                adminStatus.classList.remove('text-green-600');
-                adminStatus.classList.add('text-red-500');
-                uploadSection.classList.add('hidden');
-            }
-
-            return isAdmin;
-        }
-        
-        async function handleAdminLogin(e) {
-            e.preventDefault();
-            const password = adminPasswordInput.value;
-            if (password) {
-                await checkAdminAccess(password);
-                adminPasswordInput.value = ''; // Şifreyi temizle
-            }
-        }
-        
-        // --- Profil Fotoğrafı Yükleme İşlemleri ---
-        async function handleProfilePhotoUpload(e) {
-            e.preventDefault();
-
-            if (uploadSection.classList.contains('hidden')) {
-                 showMessage("Yetki Hatası", "Profil fotoğrafı yükleyebilmek için yönetici şifresiyle giriş yapmalısınız.", "error");
-                 return;
-            }
-
-            const file = profileFileInput.files[0];
-            if (!file) {
-                showMessage("Uyarı", "Lütfen bir dosya seçin.", "info");
-                return;
-            }
-            
-            profileSubmitButton.disabled = true;
-            profileLoadingSpinner.classList.remove('hidden');
-
-            try {
-                // Firebase Storage'a yükle
-                const storageRef = ref(storage, PROFILE_PHOTO_STORAGE_PATH);
-                const snapshot = await uploadBytes(storageRef, file);
-                const downloadURL = await getDownloadURL(snapshot.ref);
-
-                // URL'yi Firestore'a kaydet
-                await setAdminConfig({ profileUrl: downloadURL });
-                
-                // Başlıkta fotoğrafı güncelle
-                updateProfileImage(downloadURL);
-
-                showMessage("Başarılı", "Profil fotoğrafı başarıyla güncellendi!", "info");
-                profileFileInput.value = ''; // Input'u temizle
-
-            } catch (e) {
-                console.error("Profil fotoğrafı yüklenirken hata oluştu: ", e);
-                showMessage("Hata", "Profil fotoğrafı yüklenirken bir hata oluştu.", "error");
-            } finally {
-                profileSubmitButton.disabled = false;
-                profileLoadingSpinner.classList.add('hidden');
-            }
+        .header-text h1 {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 3px;
+            line-height: 1.3;
         }
 
-
-        // --- Firebase ve Kimlik Doğrulama ---
-
-        async function initFirebaseAndLoadGallery() {
-            if (!auth) return; // Firebase başlatılamadıysa çık
-
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    console.log("Kullanıcı doğrulandı (UID):", user.uid);
-                    userId = user.uid;
-                    // Profil fotoğrafını ve Admin durumunu kontrol et
-                    loadProfilePhoto();
-                    await checkAdminAccess(null);
-                    // Galeriyi yükle
-                    loadGallery();
-                } else {
-                    console.log("Kullanıcı doğrulanıyor...");
-                    try {
-                        // Canvas ortamından gelen token ile giriş yapmayı dene
-                        if (typeof __initial_auth_token !== 'undefined') {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            // Token yoksa anonim giriş yap
-                            await signInAnonymously(auth);
-                        }
-                    } catch (error) {
-                        console.error("Kimlik doğrulama hatası:", error);
-                        showMessage("Hata", "Kullanıcı kimliği doğrulanamadı. Galeri yüklenemiyor.", "error");
-                    }
-                }
-            });
+        .header-text p {
+            color: #718096;
+            font-size: 13px;
         }
 
-        // --- Veri Yükleme İşlemleri (Prompt Ekle) ---
-
-        async function handleUpload(e) {
-            e.preventDefault();
-            
-            // Yönetici değilse yüklemeyi engelle
-            if (uploadSection.classList.contains('hidden')) {
-                 showMessage("Yetki Hatası", "Yükleme yapabilmek için yönetici şifresiyle giriş yapmalısınız.", "error");
-                 return;
-            }
-
-            const title = imageTitleInput.value.trim();
-            const imageUrl = imageUrlInput.value.trim();
-            const promptText = promptInput.value.trim();
-
-            if (!title || !imageUrl || !promptText) {
-                showMessage("Uyarı", "Lütfen tüm alanları doldurun.", "info");
-                return;
-            }
-            
-            // Yükleme sırasında butonu devre dışı bırak ve spinner'ı göster
-            submitButton.disabled = true;
-            loadingSpinner.classList.remove('hidden');
-            
-            const galleryCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'gallery-items');
-            
-            try {
-                await addDoc(galleryCollectionRef, {
-                    title: title,
-                    imageUrl: imageUrl,
-                    prompt: promptText,
-                    authorId: userId, // Yükleyen kullanıcının ID'si
-                    createdAt: serverTimestamp()
-                });
-                
-                // Formu temizle ve başarılı mesajı göster
-                uploadForm.reset();
-                showMessage("Başarılı", "Prompt başarıyla galeriye eklendi!", "info");
-                
-            } catch (e) {
-                console.error("Belge eklenirken hata oluştu: ", e);
-                showMessage("Hata", "Prompt eklenirken bir hata oluştu.", "error");
-            } finally {
-                 // Butonu tekrar etkinleştir ve spinner'ı gizle
-                submitButton.disabled = false;
-                loadingSpinner.classList.add('hidden');
-            }
-        }
-
-        // --- Galeri Yükleme ve Dinleme İşlemleri ---
-        
-        function createGalleryItem(item) {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'gallery-item card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer relative';
-            itemDiv.setAttribute('data-id', item.id);
-            itemDiv.setAttribute('role', 'button');
-            itemDiv.tabIndex = 0; // Erişilebilirlik için
-
-            const date = item.createdAt ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('tr-TR') : 'Tarih Yok';
-
-            itemDiv.innerHTML = `
-                <img src="${item.imageUrl}" alt="${item.title}" class="w-full h-auto object-cover transition-transform duration-300 hover:scale-[1.03]"
-                     onerror="this.onerror=null; this.src='https://placehold.co/400x500/e5e7eb/7f1d1d?text=Görsel+Bulunamadı';"
-                >
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-4 flex flex-col justify-end">
-                    <h3 class="text-xl font-bold text-white mb-1">${item.title}</h3>
-                    <p class="text-xs text-gray-300">${date}</p>
-                    <p class="text-sm font-semibold text-purple-200 mt-2">Promptu görmek için tıklayın</p>
-                </div>
-            `;
-            
-            // Tıklama olayını ekle
-            itemDiv.addEventListener('click', () => {
-                showModal(item.title, item.prompt, item.imageUrl);
-            });
-
-            return itemDiv;
-        }
-
-        function loadGallery() {
-            if (!db) return;
-            
-            const galleryCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'gallery-items');
-            const q = query(galleryCollectionRef); // Firestore kısıtlamaları nedeniyle orderBy kullanmıyoruz
-
-            // Veritabanı değişikliklerini dinle
-            onSnapshot(q, (snapshot) => {
-                galleryContainer.innerHTML = ''; // Mevcut içeriği temizle
-                let items = [];
-
-                snapshot.forEach((doc) => {
-                    items.push({ id: doc.id, ...doc.data() });
-                });
-                
-                // Verileri istemci tarafında tarihe göre sırala (en yeniyi üste almak için)
-                items.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-
-                if (items.length === 0) {
-                    emptyMessage.classList.remove('hidden');
-                } else {
-                    emptyMessage.classList.add('hidden');
-                    // Masonry düzeni için yer tutucuyu geri ekle
-                    const gallerySizer = document.querySelector('.gallery-sizer');
-                    if(gallerySizer) galleryContainer.appendChild(gallerySizer);
-
-                    items.forEach(item => {
-                        galleryContainer.appendChild(createGalleryItem(item));
-                    });
-                }
-            }, (error) => {
-                console.error("Galeri dinlenirken hata oluştu:", error);
-                showMessage("Hata", "Galeri yüklenirken bir sorun oluştu.", "error");
-            });
-        }
-
-    </script>
-</body>
-</html>
+        .instagram-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600
