@@ -578,11 +578,16 @@
                 .orderBy('date', 'desc')
                 .onSnapshot(function(snapshot) {
                     const cards = [];
+                    promptsCache = {}; // Clear cache
+                    
                     snapshot.forEach(function(doc) {
+                        const data = doc.data();
                         cards.push({
                             id: doc.id,
-                            ...doc.data()
+                            ...data
                         });
+                        // Store prompt in cache
+                        promptsCache[doc.id] = data.prompt;
                     });
                     renderGallery(cards);
                 }, function(error) {
@@ -634,39 +639,67 @@
             `;
         }
 
+        // Store prompts in memory
+        let promptsCache = {};
+
         // Copy prompt
         function copyPrompt(event, cardId) {
             event.stopPropagation();
             
-            // Find card data
-            db.collection('promptCards').doc(cardId).get()
-                .then(function(doc) {
-                    if (doc.exists) {
-                        const prompt = doc.data().prompt;
-                        
-                        // Copy to clipboard
-                        navigator.clipboard.writeText(prompt).then(function() {
-                            // Visual feedback
-                            const copyAction = event.currentTarget;
-                            copyAction.classList.add('copied');
-                            
-                            // Change icon temporarily
-                            const icon = copyAction.querySelector('.copy-icon');
-                            icon.textContent = '✓';
-                            
-                            // Show toast
-                            showToast('✓ Prompt kopyalandı!');
-                            
-                            setTimeout(function() {
-                                copyAction.classList.remove('copied');
-                                icon.textContent = '📋';
-                            }, 1500);
-                        }).catch(function(err) {
-                            console.error('Copy failed:', err);
-                            showToast('❌ Kopyalama başarısız!');
-                        });
-                    }
+            const prompt = promptsCache[cardId];
+            
+            if (!prompt) {
+                showToast('❌ Prompt bulunamadı!');
+                return;
+            }
+            
+            // Try multiple clipboard methods for better compatibility
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(prompt).then(function() {
+                    copySuccess(event);
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopy(prompt, event);
                 });
+            } else {
+                fallbackCopy(prompt, event);
+            }
+        }
+
+        // Fallback copy method
+        function fallbackCopy(text, event) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                copySuccess(event);
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showToast('❌ Kopyalama başarısız!');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Copy success feedback
+        function copySuccess(event) {
+            const copyAction = event.currentTarget;
+            copyAction.classList.add('copied');
+            
+            const icon = copyAction.querySelector('.copy-icon');
+            icon.textContent = '✓';
+            
+            showToast('✓ Prompt kopyalandı!');
+            
+            setTimeout(function() {
+                copyAction.classList.remove('copied');
+                icon.textContent = '📋';
+            }, 1500);
         }
 
         // Delete card
