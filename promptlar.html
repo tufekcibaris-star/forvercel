@@ -198,6 +198,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
+            padding-bottom: 80px;
         }
 
         @media (min-width: 768px) {
@@ -270,6 +271,12 @@
             backdrop-filter: blur(10px);
             z-index: 1;
             text-shadow: none;
+            transition: opacity 0.3s;
+        }
+
+        .card.flipped .card-title {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .card-back {
@@ -300,6 +307,8 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 14px;
+            position: relative;
+            z-index: 10;
         }
 
         .copy-btn:hover {
@@ -488,11 +497,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
+    <!-- Firebase SDK (Compat Version - Wix Uyumlu) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAMwPYFRzG-5hTiumoyTVoOdTb7clcUazY",
@@ -505,8 +514,8 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // Admin password
         const ADMIN_PASSWORD = 'demo123';
@@ -521,21 +530,21 @@
 
         // Load cards with real-time updates
         function loadCards() {
-            const q = query(collection(db, 'promptCards'), orderBy('date', 'desc'));
-            
-            onSnapshot(q, (snapshot) => {
-                const cards = [];
-                snapshot.forEach((doc) => {
-                    cards.push({
-                        id: doc.id,
-                        ...doc.data()
+            db.collection('promptCards')
+                .orderBy('date', 'desc')
+                .onSnapshot(function(snapshot) {
+                    const cards = [];
+                    snapshot.forEach(function(doc) {
+                        cards.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
                     });
+                    renderGallery(cards);
+                }, function(error) {
+                    console.error('Error loading cards:', error);
+                    renderError();
                 });
-                renderGallery(cards);
-            }, (error) => {
-                console.error('Error loading cards:', error);
-                renderError();
-            });
         }
 
         // Render gallery
@@ -552,20 +561,23 @@
                 return;
             }
 
-            gallery.innerHTML = cards.map((card, index) => `
-                <div class="card" onclick="flipCard(event)">
-                    ${isLoggedIn ? `<button class="delete-btn" onclick="deleteCard(event, '${card.id}')">×</button>` : ''}
-                    <div class="card-inner">
-                        <div class="card-front" style="background-image: url('${card.image}')">
-                            <div class="card-title">👆 Promptu görmek için tıkla</div>
-                        </div>
-                        <div class="card-back">
-                            <div class="prompt-text">${card.prompt}</div>
-                            <button class="copy-btn" onclick="copyPrompt(event, \`${card.prompt.replace(/`/g, '\\`')}\`)">📋 Kopyala</button>
+            gallery.innerHTML = cards.map(function(card) {
+                const promptEscaped = card.prompt.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                    <div class="card" onclick="flipCard(event)">
+                        ${isLoggedIn ? `<button class="delete-btn" onclick="deleteCard(event, '${card.id}')">×</button>` : ''}
+                        <div class="card-inner">
+                            <div class="card-front" style="background-image: url('${card.image}')">
+                                <div class="card-title">👆 Promptu görmek için tıkla</div>
+                            </div>
+                            <div class="card-back">
+                                <div class="prompt-text">${card.prompt}</div>
+                                <button class="copy-btn" onclick="copyPrompt(event, '${promptEscaped}')">📋 Kopyala</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Render error
@@ -580,56 +592,55 @@
         }
 
         // Flip card
-        window.flipCard = function(event) {
+        function flipCard(event) {
             if (event.target.classList.contains('delete-btn') || 
                 event.target.classList.contains('copy-btn')) {
                 return;
             }
             event.currentTarget.classList.toggle('flipped');
-        };
+        }
 
         // Copy prompt
-        window.copyPrompt = function(event, prompt) {
+        function copyPrompt(event, prompt) {
             event.stopPropagation();
-            navigator.clipboard.writeText(prompt).then(() => {
+            navigator.clipboard.writeText(prompt).then(function() {
                 const btn = event.target;
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '✓ Kopyalandı!';
                 btn.classList.add('copied');
                 
-                setTimeout(() => {
+                setTimeout(function() {
                     btn.innerHTML = originalText;
                     btn.classList.remove('copied');
                 }, 2000);
             });
-        };
+        }
 
         // Delete card
-        window.deleteCard = async function(event, cardId) {
+        function deleteCard(event, cardId) {
             event.stopPropagation();
             if (!isLoggedIn) return;
             
             if (confirm('Bu kartı silmek istediğinizden emin misiniz?')) {
-                try {
-                    await deleteDoc(doc(db, 'promptCards', cardId));
-                } catch (error) {
-                    console.error('Error deleting card:', error);
-                    alert('Kart silinirken bir hata oluştu!');
-                }
+                db.collection('promptCards').doc(cardId).delete()
+                    .catch(function(error) {
+                        console.error('Error deleting card:', error);
+                        alert('Kart silinirken bir hata oluştu!');
+                    });
             }
-        };
+        }
 
         // Open add modal
-        window.openAddModal = function() {
+        function openAddModal() {
             if (!isLoggedIn) {
                 document.getElementById('loginModal').classList.add('active');
             } else {
                 document.getElementById('addCardModal').classList.add('active');
             }
-        };
+        }
 
         // Close modal
-        window.closeModal = function(modalId) {
+        function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
             if (modalId === 'addCardModal') {
                 document.getElementById('imageUrl').value = '';
@@ -638,10 +649,10 @@
             if (modalId === 'loginModal') {
                 document.getElementById('passwordInput').value = '';
             }
-        };
+        }
 
         // Login
-        window.login = function() {
+        function login() {
             const password = document.getElementById('passwordInput').value;
             
             if (password === ADMIN_PASSWORD) {
@@ -649,14 +660,14 @@
                 sessionStorage.setItem('adminLoggedIn', 'true');
                 closeModal('loginModal');
                 document.getElementById('addCardModal').classList.add('active');
-                loadCards(); // Refresh to show delete buttons
+                loadCards();
             } else {
                 alert('Hatalı şifre!');
             }
-        };
+        }
 
         // Add card
-        window.addCard = async function() {
+        function addCard() {
             if (!isLoggedIn) return;
             
             const imageUrl = document.getElementById('imageUrl').value.trim();
@@ -669,23 +680,23 @@
 
             const title = promptText.substring(0, 50) + (promptText.length > 50 ? '...' : '');
 
-            try {
-                await addDoc(collection(db, 'promptCards'), {
-                    image: imageUrl,
-                    prompt: promptText,
-                    title: title,
-                    date: new Date().toISOString()
-                });
-                
+            db.collection('promptCards').add({
+                image: imageUrl,
+                prompt: promptText,
+                title: title,
+                date: new Date().toISOString()
+            })
+            .then(function() {
                 closeModal('addCardModal');
-            } catch (error) {
+            })
+            .catch(function(error) {
                 console.error('Error adding card:', error);
                 alert('Kart eklenirken bir hata oluştu!');
-            }
-        };
+            });
+        }
 
         // Close modals on Escape
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeModal('loginModal');
                 closeModal('addCardModal');
@@ -693,15 +704,15 @@
         });
 
         // Close modals on Enter in password field
-        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 login();
             }
         });
 
         // Close modals on background click
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
+        document.querySelectorAll('.modal').forEach(function(modal) {
+            modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     modal.classList.remove('active');
                 }
